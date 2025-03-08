@@ -28,7 +28,7 @@ const Navbar = () => {
 
   return (
     <aside className="fixed left-0 top-0 h-full w-20 bg-white shadow-lg flex flex-col items-center py-6">
-      <Link href="/" className="mb-8">
+      <Link href="/hero" className="mb-8">
         <Image src="/logo.svg" alt="logo" width={50} height={50} className="object-contain" />
       </Link>
       <nav className="flex flex-col space-y-6">

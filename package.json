@@ -12,6 +12,7 @@
     "@headlessui/react": "^2.2.0",
     "firebase": "^11.4.0",
     "fs": "^0.0.1-security",
+    "mysql2": "^3.13.0",
     "next": "^15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

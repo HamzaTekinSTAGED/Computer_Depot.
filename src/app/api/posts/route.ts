@@ -1,16 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from "/lib/db";
+import {  NextResponse } from 'next/server';
+import { createConnection } from "../../../../lib/db";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'GET') {
-      db.query('SELECT * FROM users', (err: Error | null, results: any) => {
-        if (err) {
-          res.status(500).json({ error: 'Database query failed' });
-        } else {
-          res.status(200).json(results);
-        }
-      });
-    } else {
-      res.status(405).json({ error: 'Method Not Allowed' });
+export async function GET() {
+    try{
+      const db = await createConnection();
+      const sql = "SELECT * from instructor" ;
+      const [instructor] = await db.query(sql);
+      
+      return NextResponse.json(instructor,{status:200});
+    }catch(error){
+      console.log("DATABASE ERROR",error)
+      return NextResponse.json({error:"Interval server error"},{status:500});
     }
   }

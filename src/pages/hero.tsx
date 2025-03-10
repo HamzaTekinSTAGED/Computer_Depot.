@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
-import Navbar from "../components/Navbar";
+import Sidebar from "../components/sidebar"; // Import Sidebar instead of Navbar
 import UserInfo from "../components/UserInfo";
 
 const HeroPage = () => {
@@ -23,8 +23,8 @@ const HeroPage = () => {
 
   return (
     <div className="flex h-screen relative">
-      {/* Navbar */}
-      <Navbar />
+      {/* Sidebar */}
+      <Sidebar /> 
 
       {/* Main Content */}
       <main className="flex-1 ml-20 flex flex-col items-center justify-center text-center">

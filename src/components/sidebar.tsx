@@ -6,16 +6,21 @@ import Link from "next/link";
 import Image from "next/image";
 import SlidingBar from "./SlidingBar";
 
-const Sidebar: FC = () => {
+interface SidebarProps {
+  onExpand?: (expanded: boolean) => void;
+}
+
+const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
   const [activeTab, setActiveTab] = useState<"buy" | "sell" | null>(null);
   const [showBar, setShowBar] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false); // Start with collapsed sidebar
+  const [isExpanded, setIsExpanded] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [barPosition, setBarPosition] = useState<number>(0);
 
   const buyButtonRef = useRef<HTMLButtonElement | null>(null);
   const sellButtonRef = useRef<HTMLButtonElement | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const slidingBarRef = useRef<HTMLDivElement | null>(null);
 
   const handleTabClick = (tab: "buy" | "sell") => {
     setActiveTab(tab);
@@ -34,15 +39,25 @@ const Sidebar: FC = () => {
 
   const handleMouseEnter = () => {
     setIsExpanded(true);
+    onExpand?.(true);
   };
 
   const handleMouseLeave = () => {
     setIsExpanded(false);
+    if (slidingBarRef.current && !slidingBarRef.current.matches(':hover')) {
+      setShowBar(false);
+    }
+    onExpand?.(false);
   };
 
   const handleClickOutside = (e: MouseEvent) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-      setShowBar(false); // Close the sliding bar if clicked outside
+    if (
+      sidebarRef.current && 
+      !sidebarRef.current.contains(e.target as Node) &&
+      slidingBarRef.current && 
+      !slidingBarRef.current.contains(e.target as Node)
+    ) {
+      setShowBar(false);
     }
   };
 
@@ -55,22 +70,24 @@ const Sidebar: FC = () => {
 
   return (
     <div>
-      {/* Sidebar */}
       <aside
         ref={sidebarRef}
         className={`
-          fixed top-0 left-0 h-full bg-[#4a6c91] text-white shadow-lg transition-all duration-300 ease-in-out z-40
+          fixed top-0 left-0 h-full 
+          bg-gray-200 text-gray-800 
+          shadow-lg border border-gray-300
+          transition-all duration-300 ease-in-out z-40
           ${isExpanded ? "w-64" : "w-20"} 
           ${mobileMenuOpen ? "translate-x-0" : "translate-x-[-100%] md:translate-x-0"}
+          rounded-r-3xl
         `}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Sidebar Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-600 mt-16 md:mt-0">
-          <Link href="/hero" className="flex items-center space-x-2">
-            <Image src="/logo.svg" alt="logo" width={40} height={40} />
-            {isExpanded && <span className="text-xl font-bold">Pro Sidebar</span>}
+        <div className="flex items-center p-4 border-b border-gray-600 mt-16 md:mt-0">
+          <Link href="/hero" className={`flex items-center space-x-2 ${isExpanded ? 'w-full justify-center' : ''}`}>
+            <Image src="/logo-clean.png" alt="logo" width={40} height={40} />
           </Link>
         </div>
 
@@ -79,7 +96,7 @@ const Sidebar: FC = () => {
           <button
             ref={buyButtonRef}
             onClick={() => handleTabClick("buy")}
-            className="flex items-center w-full px-4 py-3 hover:bg-[#2f4a6b] rounded-lg transition group"
+            className="flex items-center w-full px-4 py-3 hover:bg-gray-500 hover:text-white rounded-lg transition group"
           >
             <FaShoppingCart className="text-lg" />
             {isExpanded && <span className="ml-3 text-sm">Buy</span>}
@@ -88,7 +105,7 @@ const Sidebar: FC = () => {
           <button
             ref={sellButtonRef}
             onClick={() => handleTabClick("sell")}
-            className="flex items-center w-full px-4 py-3 hover:bg-[#2f4a6b] rounded-lg transition group"
+            className="flex items-center w-full px-4 py-3 hover:bg-gray-500 hover:text-white rounded-lg transition group"
           >
             <FaDollarSign className="text-lg" />
             {isExpanded && <span className="ml-3 text-sm">Sell</span>}
@@ -96,10 +113,11 @@ const Sidebar: FC = () => {
         </nav>
 
         <SlidingBar
+          ref={slidingBarRef}
           activeTab={activeTab}
           position={barPosition}
           showBar={showBar}
-          sidebarWidth={isExpanded ? 256 : 80} // pixel width uyumu için SlidingBar'a gönderiyoruz
+          sidebarWidth={isExpanded ? 256 : 80}
         />
       </aside>
     </div>

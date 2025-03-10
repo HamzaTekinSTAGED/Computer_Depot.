@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, forwardRef } from "react";
 import { useRouter } from "next/router";
 
 interface SlidingBarProps {
@@ -10,64 +10,68 @@ interface SlidingBarProps {
   sidebarWidth: number;
 }
 
-const SlidingBar: FC<SlidingBarProps> = ({ activeTab, position, showBar, sidebarWidth }) => {
-  const router = useRouter();
+const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
+  ({ activeTab, position, showBar, sidebarWidth }, ref) => {
+    const router = useRouter();
 
-  if (!showBar) return null;
+    if (!showBar) return null;
 
-  return (
-    <div
-      className="absolute text-white p-4 shadow-lg transition-all duration-300 rounded-md z-50"
-      style={{
-        top: position,
-        left: sidebarWidth, // dynamic left value
-        width: "240px", // fixed width
-        backgroundColor: "#3b4e78", // Lighter blue matching sidebar
-      }}
-    >
-      <ul className="space-y-2">
-        {activeTab === "buy" ? (
-          <>
-            <li>
-              <button
-                onClick={() => router.push("/my-orders")}
-                className="block w-full text-left py-2 hover:text-blue-400"
-              >
-                My Orders
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => router.push("/list-items")}
-                className="block w-full text-left py-2 hover:text-blue-400"
-              >
-                List Items
-              </button>
-            </li>
-          </>
-        ) : (
-          <>
-            <li>
-              <button
-                onClick={() => router.push("/sell-orders")}
-                className="block w-full text-left py-2 hover:text-green-400"
-              >
-                My Sell Orders
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => router.push("/add-items")}
-                className="block w-full text-left py-2 hover:text-green-400"
-              >
-                Add Items
-              </button>
-            </li>
-          </>
-        )}
-      </ul>
-    </div>
-  );
-};
+    return (
+      <div
+        ref={ref}
+        className="absolute text-white p-4 shadow-lg transition-all duration-300 rounded-md z-50"
+        style={{
+          top: position,
+          left: sidebarWidth,
+          width: "240px",
+          backgroundColor: "#3b4e78", // Original blue color
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
+        }}
+      >
+        <ul className="space-y-2">
+          {activeTab === "buy" ? (
+            <>
+              <li>
+                <button
+                  onClick={() => router.push("/my-orders")}
+                  className="block w-full text-left py-2 hover:text-blue-400 transition-colors duration-200"
+                >
+                  My Orders
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => router.push("/list-items")}
+                  className="block w-full text-left py-2 hover:text-blue-400 transition-colors duration-200"
+                >
+                  List Items
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <button
+                  onClick={() => router.push("/sell-orders")}
+                  className="block w-full text-left py-2 hover:text-green-400 transition-colors duration-200"
+                >
+                  My Sell Orders
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => router.push("/add-items")}
+                  className="block w-full text-left py-2 hover:text-green-400 transition-colors duration-200"
+                >
+                  Add Items
+                </button>
+              </li>
+            </>
+          )}
+        </ul>
+      </div>
+    );
+  }
+);
 
 export default SlidingBar;

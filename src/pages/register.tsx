@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import app from "../firebase";
+
 export default function RegisterPage() {
   const auth = getAuth(app);
   const router = useRouter();
@@ -26,35 +27,71 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold mb-4">Kayıt Ol</h2>
-        {error && <p className="text-red-500">{error}</p>}
-        <form onSubmit={handleRegister} className="flex flex-col">
-          <input
-            type="email"
-            placeholder="E-posta"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="border p-2 mb-2 rounded"
-            required
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: "url('/login-background-blue.jpg')" }}
+    >
+      <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/logo-clean.png"
+            alt="Logo"
+            className="h-16 object-contain"
           />
-          <input
-            type="password"
-            placeholder="Şifre"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="border p-2 mb-2 rounded"
-            required
-          />
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-            Kayıt Ol
+        </div>
+
+        {/* Başlık */}
+        <h1 className="text-2xl font-bold text-white text-center mb-4">Register</h1>
+
+        {/* Error Message */}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+
+        {/* Email Input */}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
+        />
+
+        {/* Password Input */}
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
+        />
+
+        {/* Register Button */}
+        <button
+          onClick={handleRegister}
+          className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300"
+        >
+          Register
+        </button>
+
+        {/* Or continue with */}
+        <div className="flex items-center my-4">
+          <div className="flex-grow border-t border-white/30"></div>
+          <span className="mx-4 text-white">or continue with</span>
+          <div className="flex-grow border-t border-white/30"></div>
+        </div>
+
+        {/* Social Buttons */}
+        <div className="flex justify-center space-x-4">
+          <button className="flex items-center justify-center w-12 h-12 bg-white/0 border border-white/30 rounded-full hover:bg-white/30 transition">
+            <img src="/google-icon.svg" alt="Google" className="h-6 w-6" />
           </button>
-        </form>
-        <p className="mt-4 text-sm">
-          Zaten bir hesabın var mı?{" "}
-          <a href="/login" className="text-blue-500">
-            Giriş Yap
+        </div>
+
+        {/* Login Redirect */}
+        <p className="text-center text-white text-sm mt-6">
+          Already have an account?{" "}
+          <a href="/login" className="font-medium hover:underline">
+            Login here
           </a>
         </p>
       </div>

@@ -1,50 +1,90 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";  // useRouter hook'u
-import { signIn } from "../types/auth";  // Firebase authentication fonksiyonu
+import { useRouter } from "next/navigation";
+import { signIn } from "../types/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter(); // useRouter hook'u
+  const router = useRouter();
 
   const handleLogin = async () => {
     try {
-      await signIn(email, password);  // Firebase ile giriş yapıyoruz
-      router.push("/hero");  // Giriş başarılı olduğunda /hero rotasına yönlendiriyoruz
+      await signIn(email, password);
+      router.push("/hero");
     } catch (error) {
-      console.error("Giriş hatası: ", error);  // Hata yönetimi
+      console.error("Giriş hatası: ", error);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-sm bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">Giriş Yap</h1>
-        
-        <div className="space-y-4">
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          />
-          <input
-            type="password"
-            placeholder="Şifre"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: "url('/login-background-blue.jpg')" }}
+    >
+      <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/logo-clean.png"
+            alt="Logo"
+            className="h-16 object-contain"
           />
         </div>
 
+        {/* Başlık */}
+        <h1 className="text-2xl font-bold text-white text-center mb-4">Login</h1>
+
+        {/* Email Input */}
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
+        />
+
+        {/* Password Input */}
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
+        />
+
+        {/* Forgot Password */}
+        <div className="text-right mb-4">
+          <a href="#" className="text-sm text-white hover:underline">Forgot Password?</a>
+        </div>
+
+        {/* Sign In Button */}
         <button
           onClick={handleLogin}
-          className="w-full mt-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300"
+          className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300"
         >
-          Giriş Yap
+          Sign in
         </button>
+
+        {/* Or continue with */}
+        <div className="flex items-center my-4">
+          <div className="flex-grow border-t border-white/30"></div>
+          <span className="mx-4 text-white">or continue with</span>
+          <div className="flex-grow border-t border-white/30"></div>
+        </div>
+
+        {/* Social Buttons */}
+        <div className="flex justify-center space-x-4">
+          <button className="flex items-center justify-center w-12 h-12 bg-white/0 border border-white/30 rounded-full hover:bg-white/30 transition">
+            <img src="/google-icon.svg" alt="Google" className="h-6 w-6" />
+          </button>
+        </div>
+
+        {/* Register */}
+        <p className="text-center text-white text-sm mt-6">
+          Don’t have an account?{" "}
+          <a href="/" className="font-medium hover:underline">Register for free</a>
+        </p>
       </div>
     </div>
   );

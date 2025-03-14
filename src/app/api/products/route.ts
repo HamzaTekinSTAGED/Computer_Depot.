@@ -16,7 +16,7 @@ export async function GET() {
       },
     });
     return NextResponse.json(products);
-  } catch (error) {
+  } catch (_) {
     return NextResponse.json({ error: 'Ürünler getirilemedi' }, { status: 500 });
   }
 }
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(product, { status: 201 });
-  } catch (error) {
+  } catch (_) {
     return NextResponse.json({ error: 'Ürün oluşturulamadı' }, { status: 500 });
   }
 }

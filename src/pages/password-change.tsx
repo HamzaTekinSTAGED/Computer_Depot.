@@ -4,6 +4,8 @@ import { useState } from "react";
 import { getAuth, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import app from "../firebase";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function PasswordChangePage() {
   const auth = getAuth(app);
@@ -11,7 +13,7 @@ export default function PasswordChangePage() {
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -35,7 +37,7 @@ export default function PasswordChangePage() {
       setSuccess(true);
       console.log("Password updated successfully!");
       router.push("/hero"); // Redirect to profile page or another page after success
-    } catch (err: any) {
+    } catch (err: Error) {
       setError(err.message);
     }
   };
@@ -48,9 +50,11 @@ export default function PasswordChangePage() {
       <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img
+          <Image
             src="/logo-clean.png"
             alt="Logo"
+            width={64}
+            height={64}
             className="h-16 object-contain"
           />
         </div>
@@ -93,7 +97,7 @@ export default function PasswordChangePage() {
         {/* Go back to profile */}
         <div className="text-center mt-4">
           <p className="text-white text-sm">
-            <a href="/hero" className="text-indigo-500 hover:underline">Back to Profile</a>
+            <Link href="/hero" className="text-indigo-500 hover:underline">Back to Profile</Link>
           </p>
         </div>
       </div>

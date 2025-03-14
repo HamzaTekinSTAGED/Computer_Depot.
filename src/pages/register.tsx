@@ -1,29 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import app from "../firebase";
-import { BackgroundPaths } from "@/components/background-paths";
+import { useRouter } from "next/router";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebase";
+import {BackgroundPaths} from "../components/background-paths";
+import Image from "next/image";
+import Link from "next/link";
+
+interface FormData {
+  username: string;
+  name: string;
+  surname: string;
+  email: string;
+  password: string;
+}
+
+interface FirebaseError extends Error {
+  code?: string;
+}
 
 export default function RegisterPage() {
-  const auth = getAuth(app);
-  const router = useRouter();
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     username: "",
     name: "",
     surname: "",
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
+  const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -60,19 +73,20 @@ export default function RegisterPage() {
       const data = await response.json();
       console.log("Kullanıcı başarıyla kaydedildi!", data);
       router.push("/login");
-    } catch (err: any) {
+    } catch (err) {
+      const firebaseError = err as FirebaseError;
       // Firebase authentication hatalarını daha anlaşılır hale getir
-      if (err.code === 'auth/email-already-in-use') {
+      if (firebaseError.code === 'auth/email-already-in-use') {
         setError('Bu email adresi zaten kullanımda.');
-      } else if (err.code === 'auth/weak-password') {
+      } else if (firebaseError.code === 'auth/weak-password') {
         setError('Şifre en az 6 karakter olmalıdır.');
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (firebaseError.code === 'auth/invalid-email') {
         setError('Geçersiz email adresi.');
       } else {
-        setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+        setError(firebaseError.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
       }
       
-      console.error('Kayıt hatası:', err);
+      console.error('Kayıt hatası:', firebaseError);
     }
   };
 
@@ -83,9 +97,11 @@ export default function RegisterPage() {
         <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-black/20">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <img
+            <Image
               src="/logo-clean.png"
               alt="Logo"
+              width={64}
+              height={64}
               className="h-16 object-contain"
             />
           </div>
@@ -161,16 +177,16 @@ export default function RegisterPage() {
           {/* Social Buttons */}
           <div className="flex justify-center space-x-4">
             <button className="flex items-center justify-center w-12 h-12 bg-white/50 border border-black/30 rounded-full hover:bg-white/70 transition">
-              <img src="/google-icon.svg" alt="Google" className="h-6 w-6" />
+              <Image src="/google-icon.svg" alt="Google" width={24} height={24} className="h-6 w-6" />
             </button>
           </div>
 
           {/* Login Redirect */}
           <p className="text-center text-black text-sm mt-6">
             Already have an account?{" "}
-            <a href="/login" className="font-medium text-indigo-600 hover:underline">
+            <Link href="/login" className="font-medium text-indigo-600 hover:underline">
               Login here
-            </a>
+            </Link>
           </p>
         </div>
       </div>

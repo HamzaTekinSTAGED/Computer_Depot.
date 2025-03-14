@@ -39,7 +39,7 @@ const SearchManufacturer = ({manufacturer, setManufacturer}: SearchManufacturerP
                              className={({active}) => `relative search-manufacturer__option 
                              ${active ? "bg-primary-blue text-white" : "text-gray-900"}`}
                              >
-                                {({selected, active}) => (
+                                {({selected}) => (
                                     <li className={`${selected ? "bg-primary-blue text-white" : "text-gray-900"}`}>
                                         {item} 
                                     </li>

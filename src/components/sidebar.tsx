@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useState, useRef, useEffect } from "react";
-import { FaChevronLeft, FaChevronRight, FaShoppingCart, FaDollarSign, FaBars } from "react-icons/fa";
+import { FaShoppingCart, FaDollarSign } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 import SlidingBar from "./SlidingBar";
@@ -31,10 +31,6 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
     } else if (tab === "sell" && sellButtonRef.current) {
       setBarPosition(sellButtonRef.current.offsetTop);
     }
-  };
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen((prev) => !prev);
   };
 
   const handleMouseEnter = () => {

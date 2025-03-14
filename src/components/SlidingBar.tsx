@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, forwardRef } from "react";
+import { forwardRef } from "react";
 import { useRouter } from "next/router";
 
 interface SlidingBarProps {
@@ -73,5 +73,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
     );
   }
 );
+
+SlidingBar.displayName = 'SlidingBar';
 
 export default SlidingBar;

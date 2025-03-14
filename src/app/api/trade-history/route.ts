@@ -24,7 +24,7 @@ export async function GET() {
       },
     });
     return NextResponse.json(tradeHistory);
-  } catch (error) {
+  } catch (_) {
     return NextResponse.json({ error: 'Alışveriş geçmişi getirilemedi' }, { status: 500 });
   }
 }
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(tradeHistory, { status: 201 });
-  } catch (error) {
+  } catch (_) {
     return NextResponse.json({ error: 'Alışveriş kaydı oluşturulamadı' }, { status: 500 });
   }
 } 

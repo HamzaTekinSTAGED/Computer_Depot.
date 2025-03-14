@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from 'C:/firebasetime/myapp/lib/prisma';
+import { prisma } from '../../../../lib/prisma';
 
 // GET tüm alışveriş geçmişini getir
 export async function GET() {

@@ -10,20 +10,69 @@ export default function RegisterPage() {
   const auth = getAuth(app);
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    username: "",
+    name: "",
+    surname: "",
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      console.log("Kullanıcı başarıyla kaydedildi!");
+      // Firebase'de kullanıcı oluştur
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      
+      // Database'e kullanıcı bilgilerini kaydet
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          name: formData.name,
+          surname: formData.surname,
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          error: 'Sunucu yanıt vermedi'
+        }));
+        throw new Error(errorData.error || 'Database kayıt hatası');
+      }
+
+      const data = await response.json();
+      console.log("Kullanıcı başarıyla kaydedildi!", data);
       router.push("/login");
     } catch (err: any) {
-      setError(err.message);
+      // Firebase authentication hatalarını daha anlaşılır hale getir
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Bu email adresi zaten kullanımda.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Şifre en az 6 karakter olmalıdır.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Geçersiz email adresi.');
+      } else {
+        setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      }
+      
+      console.error('Kayıt hatası:', err);
     }
   };
 
@@ -44,21 +93,53 @@ export default function RegisterPage() {
           {/* Error Message */}
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
+          {/* Username Input */}
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
+          />
+
+          {/* Name Input */}
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={formData.name}
+            onChange={handleChange}
+            className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
+          />
+
+          {/* Surname Input */}
+          <input
+            type="text"
+            name="surname"
+            placeholder="Surname"
+            value={formData.surname}
+            onChange={handleChange}
+            className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
+          />
+
           {/* Email Input */}
           <input
             type="email"
+            name="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
           />
 
           {/* Password Input */}
           <input
             type="password"
+            name="password"
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={formData.password}
+            onChange={handleChange}
             className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
           />
 

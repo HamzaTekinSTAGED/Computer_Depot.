@@ -86,7 +86,7 @@ export default function LoginPage() {
 
         {/* Register */}
         <p className="text-center text-white text-sm mt-6">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/" className="font-medium hover:underline">Register for free</Link>
         </p>
       </div>

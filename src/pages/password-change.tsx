@@ -37,8 +37,12 @@ export default function PasswordChangePage() {
       setSuccess(true);
       console.log("Password updated successfully!");
       router.push("/hero"); // Redirect to profile page or another page after success
-    } catch (err: Error) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('An unexpected error occurred');
+      }
     }
   };
 

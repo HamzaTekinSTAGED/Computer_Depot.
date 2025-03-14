@@ -14,7 +14,7 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
   const [activeTab, setActiveTab] = useState<"buy" | "sell" | null>(null);
   const [showBar, setShowBar] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen] = useState(false);
   const [barPosition, setBarPosition] = useState<number>(0);
 
   const buyButtonRef = useRef<HTMLButtonElement | null>(null);

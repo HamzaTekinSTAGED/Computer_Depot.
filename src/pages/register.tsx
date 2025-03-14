@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import {BackgroundPaths} from "../components/background-paths";
@@ -45,7 +45,7 @@ export default function RegisterPage() {
 
     try {
       // Firebase'de kullanıcı oluştur
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       
       // Database'e kullanıcı bilgilerini kaydet
       const response = await fetch('/api/users', {

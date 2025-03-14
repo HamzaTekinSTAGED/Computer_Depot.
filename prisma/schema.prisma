@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  userID    Int       @id @default(autoincrement())
+  username  String    @unique
+  name      String
+  surname   String
+  email     String    @unique
+  password  String
+
+  // İlişkiler
+  products        Product[]         @relation("UserProducts")
+  salesHistory    TradeHistory[]    @relation("Seller")
+  purchasesHistory TradeHistory[]   @relation("Buyer")
+}
+
+model Product {
+  productID      Int       @id @default(autoincrement())
+  title          String
+  description    String
+  price          Float
+  category       String
+  imageURL       String
+  publishingDate DateTime  @default(now())
+
+  // User ilişkisi (Product sahibini belirtir)
+  userID   Int
+  user     User      @relation("UserProducts", fields: [userID], references: [userID])
+
+  // TradeHistory ilişkisi
+  tradeHistory TradeHistory[]
+}
+
+model TradeHistory {
+  id           Int      @id @default(autoincrement()) // PK olarak id ekledim
+  buyerID      Int
+  sellerID     Int
+  productID    Int
+  price        Float
+  sellingDate  DateTime @default(now())
+
+  // İlişkiler
+  buyer   User    @relation("Buyer", fields: [buyerID], references: [userID])
+  seller  User    @relation("Seller", fields: [sellerID], references: [userID])
+
+  product Product @relation(fields: [productID], references: [productID])
+}

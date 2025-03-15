@@ -32,10 +32,27 @@ export default function PasswordChangePage() {
       const credential = EmailAuthProvider.credential(user.email || "", currentPassword);
       await reauthenticateWithCredential(user, credential);
 
-      // Update password
+      // Update password in Firebase Auth
       await updatePassword(user, newPassword);
+
+      // Update password in database
+      const response = await fetch('/api/users/update-password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: user.email,
+          newPassword: newPassword
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update password in database');
+      }
+
       setSuccess(true);
-      console.log("Password updated successfully!");
+      console.log("Password updated successfully in both Auth and Database!");
       router.push("/hero"); // Redirect to profile page or another page after success
     } catch (err: unknown) {
       if (err instanceof Error) {

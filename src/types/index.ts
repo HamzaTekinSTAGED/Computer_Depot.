@@ -10,6 +10,13 @@ export interface CustomButtonProps {
     isDisabled?: boolean;
 }
 
+export interface FormData {
+    username: string;
+    name: string;
+    surname: string;
+    email: string;
+    password: string;
+}
 export interface SearchManufacturerProps {
     manufacturer: string;
     setManufacturer: (manufacturer: string) => void;
@@ -30,3 +37,6 @@ export interface CarProps {
     year: number;
 }
 
+export interface Router {
+  push: (path: string) => void;
+}

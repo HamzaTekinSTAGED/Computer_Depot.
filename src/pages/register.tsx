@@ -1,20 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
 import {BackgroundPaths} from "../components/background-paths";
 import Image from "next/image";
 import Link from "next/link";
-
-interface FormData {
-  username: string;
-  name: string;
-  surname: string;
-  email: string;
-  password: string;
-}
+import { FormData } from "@/types";
+import { checkAuthAndRedirect } from "../functions/authCheck";
 
 interface FirebaseError extends Error {
   code?: string;
@@ -29,7 +23,13 @@ export default function RegisterPage() {
     password: "",
   });
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = checkAuthAndRedirect(router, setIsLoading);
+    return () => unsubscribe();
+  }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -89,6 +89,17 @@ export default function RegisterPage() {
       console.error('Kayıt hatası:', firebaseError);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="relative min-h-screen">
+        <BackgroundPaths title="Register" showTitle={false} />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen">

@@ -44,35 +44,40 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      // Firebase'de kullanıcı oluştur
-      await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      // Firebase kaydı
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       
-      // Database'e kullanıcı bilgilerini kaydet
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          name: formData.name,
-          surname: formData.surname,
-          email: formData.email,
-          password: formData.password
-        }),
-      });
+      try {
+        // Database kaydı
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: JSON.stringify({
+            username: formData.username,
+            name: formData.name,
+            surname: formData.surname,
+            email: formData.email,
+            password: formData.password
+          }),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          error: 'Sunucu yanıt vermedi'
-        }));
-        throw new Error(errorData.error || 'Database kayıt hatası');
+        if (!response.ok) {
+          // Firebase'den kullanıcıyı sil
+          await userCredential.user.delete();
+          throw new Error('Database kayıt hatası');
+        }
+
+        const data = await response.json();
+        console.log("Kullanıcı başarıyla kaydedildi!", data);
+        router.push("/login");
+      } catch (dbError) {
+        // Hata durumunda Firebase kullanıcısını temizle
+        await userCredential.user.delete();
+        throw dbError;
       }
-
-      const data = await response.json();
-      console.log("Kullanıcı başarıyla kaydedildi!", data);
-      router.push("/login");
     } catch (err) {
       const firebaseError = err as FirebaseError;
       // Firebase authentication hatalarını daha anlaşılır hale getir

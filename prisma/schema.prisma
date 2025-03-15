@@ -44,6 +44,9 @@ model Product {
 
   // TradeHistory ilişkisi
   tradeHistory TradeHistory[]
+
+  @@index([userID]) // Foreign key için index
+  @@index([category]) // Kategori aramaları için index
 }
 
 model TradeHistory {
@@ -59,4 +62,7 @@ model TradeHistory {
   seller  User    @relation("Seller", fields: [sellerID], references: [userID])
 
   product Product @relation(fields: [productID], references: [productID])
+
+  @@index([buyerID, sellerID]) // Alıcı/satıcı sorguları için composite index
+  @@index([productID])
 }

@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 
 import "../styles/globals.css";
 import { Footer } from "@/components";
-
-
+import AuthProvider from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Computer Depot",
@@ -20,8 +19,10 @@ export default function RootLayout({
     <html lang="en">
       
       <body className={"relative"}>
-        {children}
-        <Footer />
+        <AuthProvider>
+          {children}
+          <Footer />
+        </AuthProvider>
       </ body>
         
     </html>

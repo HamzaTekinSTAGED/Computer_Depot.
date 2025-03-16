@@ -1,26 +1,29 @@
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { auth } from "../firebase";
+import { useSession } from "next-auth/react";
 import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
 
 const HeroPage = () => {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/register");
-      } else {
-        setUser(user);
-      }
-    });
+    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
-    return () => unsubscribe();
-  }, [router]);
+  // Yükleniyor durumu
+  if (status === "loading") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen relative">
@@ -35,7 +38,7 @@ const HeroPage = () => {
       </main>
 
       {/* User Info */}
-      {user && <UserInfo user={user} />}
+      {session && <UserInfo session={session} />}
     </div>
   );
 };

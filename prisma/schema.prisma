@@ -13,20 +13,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
-  userID    Int       @id @default(autoincrement())
-  username  String    @unique
-  name      String
-  surname   String
-  email     String    @unique
-  password  String
+  userID         Int            @id @default(autoincrement())
+  username       String         @unique
+  name           String
+  surname        String
+  email          String         @unique
+  password       String
+  emailVerified  DateTime?      // NextAuth için gerekli alan
+  image          String?        // Kullanıcı profil resmi (isteğe bağlı)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  // NextAuth.js için gerekli ilişkiler
+  accounts       Account[]
+  sessions       Session[]
 
   // İlişkiler
-  products        Product[]         @relation("UserProducts")
-  salesHistory    TradeHistory[]    @relation("Seller")
-  purchasesHistory TradeHistory[]   @relation("Buyer")
+  products        Product[]     @relation("UserProducts")
+  salesHistory    TradeHistory[] @relation("Seller")
+  purchasesHistory TradeHistory[] @relation("Buyer")
+}
+
+// NextAuth.js için gerekli modeller
+model Account {
+  id                 String   @id @default(cuid())
+  userId             Int
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [userID], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [userID], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Product {

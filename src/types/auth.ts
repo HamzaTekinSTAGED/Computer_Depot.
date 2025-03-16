@@ -1,22 +1,33 @@
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signIn as nextAuthSignIn, signOut as nextAuthSignOut } from "next-auth/react";
 
-// Kullanıcı girişi fonksiyonu
+// Bu dosya eski Firebase yöntemlerinden NextAuth.js'e geçiş için basit bir uyumluluk katmanı sağlar
+
+// Kullanıcı girişi fonksiyonu - NextAuth'a yönlendirir
 export const signIn = async (email: string, password: string) => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log("Giriş başarılı:", userCredential.user);
+    const result = await nextAuthSignIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+    
+    if (result?.error) {
+      throw new Error(result.error);
+    }
+    
+    return result;
   } catch (error) {
     console.error("Giriş hatası:", error);
+    throw error;
   }
 };
 
-// Yeni kullanıcı kaydı fonksiyonu
-export const signUp = async (email: string, password: string) => {
+// Çıkış fonksiyonu
+export const signOut = async () => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log("Kullanıcı kaydedildi:", userCredential.user);
+    await nextAuthSignOut({ redirect: false });
   } catch (error) {
-    console.error("Kayıt hatası:", error);
+    console.error("Çıkış hatası:", error);
+    throw error;
   }
 };

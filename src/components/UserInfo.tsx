@@ -1,21 +1,20 @@
 import { FC, useState } from "react";
-import { User } from "firebase/auth";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { Session } from "next-auth";
 
 interface UserInfoProps {
-  user: User;
+  session: Session;
 }
 
-const UserInfo: FC<UserInfoProps> = ({ user }) => {
+const UserInfo: FC<UserInfoProps> = ({ session }) => {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      router.push("/register");
+      await signOut({ redirect: false });
+      router.push("/login");
     } catch (error) {
       console.error("Logout error: ", error);
     }
@@ -24,6 +23,8 @@ const UserInfo: FC<UserInfoProps> = ({ user }) => {
   const handlePasswordChange = () => {
     router.push("/password-change");
   };
+
+  const user = session.user;
 
   return (
     <div className="relative">

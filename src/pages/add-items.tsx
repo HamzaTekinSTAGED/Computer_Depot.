@@ -1,27 +1,23 @@
+"use client";
+
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { auth } from "../firebase";
+import { useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
 
 export default function SellPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [item, setItem] = useState({ title: "", description: "", price: "", category: "" });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        router.push("/register");
-      } else {
-        setUser(user);
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
+    if (status === "unauthenticated") {
+      router.push("/register");
+    }
+  }, [status, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setItem({ ...item, [e.target.name]: e.target.value });
@@ -30,28 +26,31 @@ export default function SellPage() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImagePreview(URL.createObjectURL(e.target.files[0]));
-      e.target.value = ""; // Reset file input value to allow re-uploading the same file
+      e.target.value = ""; // Reset file input
     }
   };
-  
+
   const handleImageDelete = () => {
     setImagePreview(null);
     const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
     if (fileInput) {
-      fileInput.value = ""; // Reset file input
+      fileInput.value = "";
     }
   };
-  
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert("Item listed successfully (not saved, just a demo)");
   };
 
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex h-screen relative">
       <Sidebar onExpand={setIsSidebarExpanded} />
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
         <div className="max-w-6xl mx-auto mt-10 p-8 bg-white shadow-xl rounded-xl">
           <h2 className="text-2xl font-semibold mb-4">Sell Your Item</h2>
           <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
@@ -88,7 +87,7 @@ export default function SellPage() {
           </form>
         </div>
       </div>
-      {user && <UserInfo user={user} />}
+      {session && <UserInfo session={session} />}
     </div>
   );
 }

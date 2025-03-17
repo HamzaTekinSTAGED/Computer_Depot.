@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { db } from '@/lib/db';
 import { hash } from 'bcrypt';
 
 // GET tüm kullanıcıları getir
 export async function GET() {
   try {
-    const users = await prisma.user.findMany({
+    const users = await db.user.findMany({
       select: {
         userID: true,
         username: true,
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     }
 
     // Kullanıcı adı veya email zaten var mı kontrol et
-    const existingUser = await prisma.user.findFirst({
+    const existingUser = await db.user.findFirst({
       where: {
         OR: [
           { email },
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     // Şifreyi hashle
     const hashedPassword = await hash(password, 10);
 
-    const user = await prisma.user.create({
+    const user = await db.user.create({
       data: {
         username,
         name,

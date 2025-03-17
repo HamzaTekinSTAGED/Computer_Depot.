@@ -38,9 +38,48 @@ export default function SellPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Item listed successfully (not saved, just a demo)");
+    
+    if (!session?.user?.id) {
+      alert("Lütfen ürün eklemek için giriş yapın");
+      return;
+    }
+
+    try {
+      // Form validation
+      if (!item.title || !item.description || !item.price || !item.category) {
+        alert("Lütfen tüm alanları doldurun");
+        return;
+      }
+
+      const response = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: item.title,
+          description: item.description,
+          price: parseFloat(item.price),
+          category: item.category,
+          imageURL: imagePreview || null,
+          userID: parseInt(session.user.id)
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.details || 'Ürün oluşturulamadı');
+      }
+
+      router.push('/products');
+      alert("Ürün başarıyla eklendi!");
+    } catch (error) {
+      console.error('Hata:', error);
+      alert(error instanceof Error ? error.message : "Ürün eklenirken bir hata oluştu. Lütfen tekrar deneyin.");
+    }
   };
 
   if (status === "loading") {
@@ -56,14 +95,22 @@ export default function SellPage() {
           <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
             <div className="flex space-x-12">
               <div className="flex flex-col items-center space-y-4">
-                <label className="w-80 h-80 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative">
+                <label htmlFor="image-upload" className="w-80 h-80 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative">
                   {imagePreview ? (
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
                   ) : (
                     <span className="text-gray-500">Click to upload</span>
                   )}
-                  <input type="file" accept="image/*" onChange={handleImageUpload} required className="hidden" />
                 </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="sr-only"
+                  aria-label="Upload image"
+                />
                 {imagePreview && (
                   <button type="button" onClick={handleImageDelete} className="bg-red-500 text-white px-4 py-2 rounded-lg text-lg">
                     Delete Image
@@ -83,7 +130,7 @@ export default function SellPage() {
               </div>
             </div>
             <textarea name="description" placeholder="Description" value={item.description} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl" rows={5} />
-            <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-lg text-xl font-semibold">List Item</button>
+            <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-lg text-xl font-semibold">Add Item</button>
           </form>
         </div>
       </div>

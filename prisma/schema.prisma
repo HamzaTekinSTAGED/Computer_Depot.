@@ -20,19 +20,17 @@ model User {
   surname        String
   email          String         @unique
   password       String
-  emailVerified  DateTime?      // NextAuth için gerekli alan
-  image          String?        // Kullanıcı profil resmi (isteğe bağlı)
+  emailVerified  DateTime?      
+  image          String?        
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
-
-  // NextAuth.js için gerekli ilişkiler
-  accounts       Account[]
-  sessions       Session[]
 
   // İlişkiler
   products        Product[]     @relation("UserProducts")
   salesHistory    TradeHistory[] @relation("Seller")
   purchasesHistory TradeHistory[] @relation("Buyer")
+  accounts        Account[]
+  sessions        Session[]
 }
 
 // NextAuth.js için gerekli modeller

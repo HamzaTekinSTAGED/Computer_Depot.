@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../../lib/prisma';
+import { db } from '@/lib/db';
 
 // GET tüm alışveriş geçmişini getir
 export async function GET() {
   try {
-    const tradeHistory = await prisma.tradeHistory.findMany({
+    const tradeHistory = await db.tradeHistory.findMany({
       include: {
         buyer: {
           select: {
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { buyerID, sellerID, productID, price } = body;
 
-    const tradeHistory = await prisma.tradeHistory.create({
+    const tradeHistory = await db.tradeHistory.create({
       data: {
         buyerID,
         sellerID,

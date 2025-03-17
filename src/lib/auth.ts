@@ -4,9 +4,16 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { db } from "./db";
 import { AuthOptions } from "next-auth";
+import { JWT } from "next-auth/jwt";
+
+interface ExtendedToken extends JWT {
+  id?: string;
+  username?: string;
+  surname?: string;
+}
 
 export const authOptions: AuthOptions = {
-  adapter: PrismaAdapter(db),
+  adapter: PrismaAdapter(db) as any, // Type assertion to resolve adapter compatibility
   session: {
     strategy: "jwt",
   },
@@ -53,7 +60,7 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     // JWT oluşturma sırasında çalışır
-    async jwt({ token, user }) {
+    async jwt({ token, user }): Promise<ExtendedToken> {
       if (user) {
         token.id = user.id;
         token.username = user.username;
@@ -64,7 +71,7 @@ export const authOptions: AuthOptions = {
     // Oturum oluşturma sırasında çalışır
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id;
+        session.user.id = token.id as string;
         session.user.username = token.username as string;
         session.user.surname = token.surname as string;
       }

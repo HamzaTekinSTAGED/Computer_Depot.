@@ -7,6 +7,7 @@ import Link from "next/link";
 import {BackgroundPaths} from "../components/background-paths";
 import { useSession, signIn } from "next-auth/react";
 import { FormData } from "@/types";
+import { useAuthCheck } from "@/functions/functions";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState<FormData>({
@@ -22,14 +23,7 @@ export default function RegisterPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  useEffect(() => {
-    // Kullanıcı zaten giriş yapmışsa hero sayfasına yönlendir
-    if (status === "authenticated") {
-      router.push("/hero");
-    } else {
-      setIsLoading(false);
-    }
-  }, [status, router]);
+  useAuthCheck(status, setIsLoading);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

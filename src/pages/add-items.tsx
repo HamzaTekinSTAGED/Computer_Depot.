@@ -74,7 +74,7 @@ export default function SellPage() {
         throw new Error(data.error || data.details || 'Ürün oluşturulamadı');
       }
 
-      router.push('/products');
+      router.push('/add-items');
       alert("Ürün başarıyla eklendi!");
     } catch (error) {
       console.error('Hata:', error);

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BackgroundPaths } from "../components/background-paths";
 import { signIn, useSession } from "next-auth/react";
+import { useAuthCheck } from "@/functions/functions";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -14,14 +15,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  useEffect(() => {
-    // Kullanıcı zaten giriş yapmışsa hero sayfasına yönlendir
-    if (status === "authenticated") {
-      router.push("/hero");
-    } else {
-      setIsLoading(false);
-    }
-  }, [status, router]);
+  useAuthCheck(status, setIsLoading);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

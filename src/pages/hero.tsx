@@ -8,13 +8,14 @@ const HeroPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    // Kullanıcı giriş yapmamışsa login sayfasına yönlendir
-    if (status === "unauthenticated") {
+    if (status === "unauthenticated" && !isRedirecting) {
+      setIsRedirecting(true);
       router.push("/login");
     }
-  }, [status, router]);
+  }, [status, router, isRedirecting]);
 
   // Yükleniyor durumu
   if (status === "loading") {

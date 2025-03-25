@@ -5,12 +5,19 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
+import { uploadToCloudinary } from "../utils/cloudinaryUpload";
 
 export default function SellPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const [item, setItem] = useState({ title: "", description: "", price: "", category: "" });
+  const [item, setItem] = useState({ 
+    title: "", 
+    description: "", 
+    price: "", 
+    category: "",
+    imageURL: ""
+  });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -23,15 +30,42 @@ export default function SellPage() {
     setItem({ ...item, [e.target.name]: e.target.value });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImagePreview(URL.createObjectURL(e.target.files[0]));
+      try {
+        const file = e.target.files[0];
+        console.log('Selected file:', {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
+
+        // Show preview immediately
+        setImagePreview(URL.createObjectURL(file));
+        
+        // Verify environment variables
+        console.log('Cloudinary config:', {
+          cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+          hasApiKey: !!process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
+        });
+
+        // Upload to Cloudinary
+        const cloudinaryUrl = await uploadToCloudinary(file);
+        console.log('Cloudinary upload completed:', cloudinaryUrl);
+        
+        setItem(prev => ({ ...prev, imageURL: cloudinaryUrl }));
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image. Please try again. Error: ' + (error instanceof Error ? error.message : String(error)));
+        setImagePreview(null);
+      }
       e.target.value = ""; // Reset file input
     }
   };
 
   const handleImageDelete = () => {
     setImagePreview(null);
+    setItem(prev => ({ ...prev, imageURL: "" })); // Clear the Cloudinary URL too
     const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
     if (fileInput) {
       fileInput.value = "";
@@ -42,14 +76,14 @@ export default function SellPage() {
     e.preventDefault();
     
     if (!session?.user?.id) {
-      alert("Lütfen ürün eklemek için giriş yapın");
+      alert("Please login to add a product");
       return;
     }
 
     try {
       // Form validation
       if (!item.title || !item.description || !item.price || !item.category) {
-        alert("Lütfen tüm alanları doldurun");
+        alert("Please fill in all fields");
         return;
       }
 
@@ -63,7 +97,7 @@ export default function SellPage() {
           description: item.description,
           price: parseFloat(item.price),
           category: item.category,
-          imageURL: imagePreview || null,
+          imageURL: item.imageURL || null,
           userID: parseInt(session.user.id)
         }),
       });
@@ -71,14 +105,14 @@ export default function SellPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.details || 'Ürün oluşturulamadı');
+        throw new Error(data.error || data.details || 'Failed to create product');
       }
 
-      router.push('/add-items');
-      alert("Ürün başarıyla eklendi!");
+      router.push('/list-items');
+      alert("Product added successfully!");
     } catch (error) {
-      console.error('Hata:', error);
-      alert(error instanceof Error ? error.message : "Ürün eklenirken bir hata oluştu. Lütfen tekrar deneyin.");
+      console.error('Error:', error);
+      alert(error instanceof Error ? error.message : "An error occurred while adding the product. Please try again.");
     }
   };
 

@@ -36,7 +36,8 @@ export default function SellOrdersPage() {
           const response = await fetch(`/api/products?userId=${session.user.id}`);
           if (response.ok) {
             const data = await response.json();
-            setProducts(data);
+            const userProducts = data.filter((product: Product) => product.userID === parseInt(session.user.id));
+            setProducts(userProducts);
           }
         } catch (error) {
           console.error('Error fetching products:', error);
@@ -57,7 +58,7 @@ export default function SellOrdersPage() {
       <Sidebar onExpand={setIsSidebarExpanded} />
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
         <div className="max-w-6xl mx-auto mt-10 p-8">
-          <h2 className="text-2xl font-semibold mb-6">Satış Listesi</h2>
+          <h2 className="text-2xl font-semibold mb-6">My Sell Orders</h2>
           {products.length === 0 ? (
             <div className="text-center py-10 bg-white rounded-xl shadow-md">
               <p className="text-xl text-gray-600">Henüz hiç ürün eklenmemiş</p>

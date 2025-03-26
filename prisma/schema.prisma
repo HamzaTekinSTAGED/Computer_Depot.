@@ -79,6 +79,7 @@ model Product {
   price          Float
   category       String
   imageURL       String
+  isSold         Boolean   @default(false)
   publishingDate DateTime  @default(now())
 
   // User ilişkisi (Product sahibini belirtir)

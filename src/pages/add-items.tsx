@@ -98,7 +98,8 @@ export default function SellPage() {
           price: parseFloat(item.price),
           category: item.category,
           imageURL: item.imageURL || null,
-          userID: parseInt(session.user.id)
+          userID: parseInt(session.user.id),
+          isSold: false
         }),
       });
 

@@ -1,29 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import {BackgroundPaths} from "../components/background-paths";
-import { useSession, signIn } from "next-auth/react";
-import { FormData } from "@/types";
-import { useAuthCheck } from "@/functions/functions";
+import { BackgroundPaths } from "../components/background-paths";
 
-export default function RegisterPage() {
-  const [formData, setFormData] = useState<FormData>({
+export default function ForgotPasswordPage() {
+  const [formData, setFormData] = useState({
     username: "",
     name: "",
     surname: "",
     email: "",
-    password: "",
+    newPassword: "",
     confirmPassword: "",
   });
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
-
-  useAuthCheck(status, setIsLoading);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -33,26 +28,31 @@ export default function RegisterPage() {
     }));
   };
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess(false);
 
     // Validasyon
-    if (!formData.username || !formData.name || !formData.surname || !formData.email || !formData.password) {
+    if (!formData.username || !formData.name || !formData.surname || !formData.email || !formData.newPassword || !formData.confirmPassword) {
       setError("Lütfen tüm alanları doldurun.");
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Şifreler eşleşmiyor.");
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError("Yeni şifreler eşleşmiyor.");
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
+      setError("Şifre en az 6 karakter olmalıdır.");
       return;
     }
 
     try {
       setIsLoading(true);
 
-      // Yeni API endpoint'imize veri gönder
-      const response = await fetch('/api/auth/register', {
+      const response = await fetch('/api/auth/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,51 +62,36 @@ export default function RegisterPage() {
           name: formData.name,
           surname: formData.surname,
           email: formData.email,
-          password: formData.password
+          newPassword: formData.newPassword
         }),
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Kayıt işlemi başarısız oldu.');
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Şifre sıfırlama işlemi başarısız oldu.');
       }
 
-      console.log("Kullanıcı başarıyla kaydedildi!", data);
-      
-      // Kayıt başarılıysa otomatik giriş yap
-      const signInResult = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
-
-      if (signInResult?.error) {
-        router.push("/login?registered=true");
+      if (data.success) {
+        setSuccess(true);
+        // Başarılı olduğunda 2 saniye sonra login sayfasına yönlendir
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
       } else {
-        router.push("/hero");
+        throw new Error(data.error || 'Şifre sıfırlama işlemi başarısız oldu.');
       }
     } catch (err: any) {
-      setIsLoading(false);
       setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
-      console.error('Kayıt hatası:', err);
+      console.error('Şifre sıfırlama hatası:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (status === "loading" || isLoading) {
-    return (
-      <div className="relative min-h-screen">
-        <BackgroundPaths title="Register" showTitle={false} />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="relative min-h-screen">
-      <BackgroundPaths title="Register" showTitle={false} />
+      <BackgroundPaths title="Forgot Password" showTitle={false} />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-black/20">
           {/* Logo */}
@@ -120,10 +105,32 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Error Message */}
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          {/* Title */}
+          <h1 className="text-2xl font-bold text-black text-center mb-4">Forgot Password</h1>
 
-          <form onSubmit={handleRegister}>
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+              <div className="flex">
+                <div>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {success && (
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+              <div className="flex">
+                <div>
+                  <p className="text-sm text-green-700">Password reset successful! Redirecting to login...</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
             {/* Username Input */}
             <input
               type="text"
@@ -164,63 +171,42 @@ export default function RegisterPage() {
               className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
             />
 
-            {/* Password Input */}
+            {/* New Password Input */}
             <input
               type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
+              name="newPassword"
+              placeholder="New Password"
+              value={formData.newPassword}
               onChange={handleChange}
               className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
             />
 
-            {/* Confirm Password Input */}
+            {/* Confirm New Password Input */}
             <input
               type="password"
               name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword || ""}
+              placeholder="Confirm New Password"
+              value={formData.confirmPassword}
               onChange={handleChange}
               className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
             />
 
-            {/* Register Button */}
+            {/* Reset Password Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300"
+              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-70"
             >
-              {isLoading ? "Registering..." : "Register"}
+              {isLoading ? "Processing..." : "Reset Password"}
             </button>
           </form>
 
-          {/* Or continue with */}
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-black/30"></div>
-            <span className="mx-4 text-black">or continue with</span>
-            <div className="flex-grow border-t border-black/30"></div>
+          {/* Back to Login */}
+          <div className="text-center mt-4">
+            <p className="text-black text-sm">
+              <Link href="/login" className="text-indigo-600 hover:underline">Back to Login</Link>
+            </p>
           </div>
-
-          {/* Social Buttons */}
-          <div className="flex justify-center space-x-4">
-            <button 
-              onClick={() => signIn("google", { 
-                callbackUrl: "/hero",
-                redirect: false 
-              })}
-              className="flex items-center justify-center w-12 h-12 bg-white/50 border border-black/30 rounded-full hover:bg-white/70 transition"
-            >
-              <Image src="/google-icon.svg" alt="Google" width={24} height={24} className="h-6 w-6" />
-            </button>
-          </div>
-
-          {/* Login Redirect */}
-          <p className="text-center text-black text-sm mt-6">
-            Already have an account?{" "}
-            <Link href="/login" className="font-medium text-indigo-600 hover:underline">
-              Login here
-            </Link>
-          </p>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import bcrypt from "bcrypt";
+import { BackgroundPaths } from "../components/background-paths";
 
 export default function PasswordChangePage() {
   const router = useRouter();
@@ -110,81 +111,100 @@ export default function PasswordChangePage() {
   // Yükleniyor durumu
   if (status === "loading") {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+      <div className="relative min-h-screen">
+        <BackgroundPaths title="Change Password" showTitle={false} />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('/login-background-blue.jpg')" }}
-    >
-      <div className="bg-white/10 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-white/20">
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <Image
-            src="/logo-clean.png"
-            alt="Logo"
-            width={64}
-            height={64}
-            className="h-16 object-contain"
-          />
-        </div>
+    <div className="relative min-h-screen">
+      <BackgroundPaths title="Change Password" showTitle={false} />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md border border-black/20">
+          {/* Logo */}
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/logo-clean.png"
+              alt="Logo"
+              width={64}
+              height={64}
+              className="h-16 object-contain"
+            />
+          </div>
 
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-white text-center mb-4">Change Password</h1>
+          {/* Title */}
+          <h1 className="text-2xl font-bold text-black text-center mb-4">Change Password</h1>
 
-        {/* Error Message */}
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+              <div className="flex">
+                <div>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
-        {/* Success Message */}
-        {success && <p className="text-green-500 text-center mb-4">Password updated successfully!</p>}
+          {/* Success Message */}
+          {success && (
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+              <div className="flex">
+                <div>
+                  <p className="text-sm text-green-700">Password updated successfully!</p>
+                </div>
+              </div>
+            </div>
+          )}
 
-        <form onSubmit={handlePasswordChange}>
-          {/* Current Password Input */}
-          <input
-            type="password"
-            placeholder="Current Password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
-          />
+          <form onSubmit={handlePasswordChange}>
+            {/* Current Password Input */}
+            <input
+              type="password"
+              placeholder="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
+            />
 
-          {/* New Password Input */}
-          <input
-            type="password"
-            placeholder="New Password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
-          />
+            {/* New Password Input */}
+            <input
+              type="password"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
+            />
 
-          {/* Confirm New Password Input */}
-          <input
-            type="password"
-            placeholder="Confirm New Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full mb-4 px-4 py-3 rounded-lg border border-white/30 bg-white/20 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-white/60 focus:bg-white/30"
-          />
+            {/* Confirm New Password Input */}
+            <input
+              type="password"
+              placeholder="Confirm New Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full mb-4 px-4 py-3 rounded-lg border border-black/30 bg-white/50 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black/60 focus:bg-white/70"
+            />
 
-          {/* Change Password Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-70"
-          >
-            {isLoading ? "Processing..." : "Change Password"}
-          </button>
-        </form>
+            {/* Change Password Button */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-70"
+            >
+              {isLoading ? "Processing..." : "Change Password"}
+            </button>
+          </form>
 
-        {/* Go back to profile */}
-        <div className="text-center mt-4">
-          <p className="text-white text-sm">
-            <Link href="/hero" className="text-indigo-500 hover:underline">Back to Profile</Link>
-          </p>
+          {/* Go back to profile */}
+          <div className="text-center mt-4">
+            <p className="text-black text-sm">
+              <Link href="/hero" className="text-indigo-600 hover:underline">Back to Profile</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

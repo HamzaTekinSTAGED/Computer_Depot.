@@ -55,8 +55,44 @@ export const authOptions: AuthOptions = {
     error: "/login",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          // Check if user already exists
+          const existingUser = await db.user.findUnique({
+            where: { email: user.email! }
+          });
+
+          if (!existingUser) {
+            // Create new user with Google data
+            const newUser = await db.user.create({
+              data: {
+                email: user.email!,
+                name: user.name || "",
+                surname: user.name?.split(' ').slice(1).join(' ') || "", // Use last part of name as surname
+                username: user.email!.split('@')[0], // Create username from email
+                password: await bcrypt.hash(Math.random().toString(36), 10), // Generate random password
+                image: user.image,
+              }
+            });
+
+            user.id = String(newUser.userID);
+            user.username = newUser.username;
+            user.surname = newUser.surname;
+          } else {
+            user.id = String(existingUser.userID);
+            user.username = existingUser.username;
+            user.surname = existingUser.surname;
+          }
+        } catch (error) {
+          console.error("Error during Google sign in:", error);
+          return false;
+        }
+      }
+      return true;
+    },
     // JWT oluşturma sırasında çalışır
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;

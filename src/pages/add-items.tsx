@@ -131,7 +131,7 @@ export default function SellPage() {
               <div className="flex flex-col items-center space-y-4">
                 <label htmlFor="image-upload" className="w-80 h-80 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
                   ) : (
                     <span className="text-gray-500">Click to upload</span>
                   )}

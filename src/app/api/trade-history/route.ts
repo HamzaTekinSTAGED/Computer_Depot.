@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
 interface RawProduct {
   productID: number;
@@ -16,30 +17,56 @@ interface RawProduct {
 }
 
 // GET tüm alışveriş geçmişini getir
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const tradeHistory = await db.tradeHistory.findMany({
+    const { searchParams } = new URL(request.url);
+    const buyerId = searchParams.get('buyerId');
+    const sellerId = searchParams.get('sellerId');
+
+    if (!buyerId && !sellerId) {
+      return NextResponse.json(
+        { error: "Either buyerId or sellerId must be provided" },
+        { status: 400 }
+      );
+    }
+
+    const where = buyerId
+      ? { buyerID: parseInt(buyerId) }
+      : { sellerID: parseInt(sellerId!) };
+
+    const tradeHistory = await prisma.tradeHistory.findMany({
+      where,
       include: {
+        product: {
+          select: {
+            title: true,
+            description: true,
+            imageURL: true,
+          },
+        },
         buyer: {
           select: {
             username: true,
-            name: true,
-            surname: true,
           },
         },
         seller: {
           select: {
             username: true,
-            name: true,
-            surname: true,
           },
         },
-        product: true,
+      },
+      orderBy: {
+        sellingDate: 'desc',
       },
     });
+
     return NextResponse.json(tradeHistory);
-  } catch {
-    return NextResponse.json({ error: 'Alışveriş geçmişi getirilemedi' }, { status: 500 });
+  } catch (error) {
+    console.error("Error fetching trade history:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch trade history" },
+      { status: 500 }
+    );
   }
 }
 

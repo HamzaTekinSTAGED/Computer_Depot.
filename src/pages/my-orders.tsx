@@ -64,11 +64,13 @@ export default function MyOrders() {
                   <div className="p-6">
                     <div className="flex items-center space-x-4">
                       {trade.product.imageURL && (
-                        <img
-                          src={trade.product.imageURL}
-                          alt={trade.product.title}
-                          className="w-24 h-24 object-cover rounded"
-                        />
+                        <div className="w-24 h-24 flex-shrink-0">
+                          <img
+                            src={trade.product.imageURL}
+                            alt={trade.product.title}
+                            className="w-full h-full object-contain rounded"
+                          />
+                        </div>
                       )}
                       <div className="flex-1">
                         <h2 className="text-xl font-semibold text-gray-900">{trade.product.title}</h2>

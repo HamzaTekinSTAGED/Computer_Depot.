@@ -194,26 +194,7 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          {/* Or continue with */}
-          <div className="flex items-center my-4">
-            <div className="flex-grow border-t border-black/30"></div>
-            <span className="mx-4 text-black">or continue with</span>
-            <div className="flex-grow border-t border-black/30"></div>
-          </div>
-
-          {/* Social Buttons */}
-          <div className="flex justify-center space-x-4">
-            <button 
-              onClick={() => signIn("google", { 
-                callbackUrl: "/hero",
-                redirect: false 
-              })}
-              className="flex items-center justify-center w-12 h-12 bg-white/50 border border-black/30 rounded-full hover:bg-white/70 transition"
-            >
-              <Image src="/google-icon.svg" alt="Google" width={24} height={24} className="h-6 w-6" />
-            </button>
-          </div>
-
+          
           {/* Login Redirect */}
           <p className="text-center text-black text-sm mt-6">
             Already have an account?{" "}

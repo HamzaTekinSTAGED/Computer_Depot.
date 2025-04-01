@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
+import { UserRole } from "@prisma/client";
 
 export const authOptions: AuthOptions = {
   // Adapter'ı şimdilik kaldırıyoruz
@@ -41,6 +42,7 @@ export const authOptions: AuthOptions = {
           name: user.name,
           surname: user.surname,
           username: user.username,
+          role: user.role,
         };
       }
     }),
@@ -69,20 +71,23 @@ export const authOptions: AuthOptions = {
               data: {
                 email: user.email!,
                 name: user.name || "",
-                surname: user.name?.split(' ').slice(1).join(' ') || "", // Use last part of name as surname
-                username: user.email!.split('@')[0], // Create username from email
-                password: await bcrypt.hash(Math.random().toString(36), 10), // Generate random password
+                surname: user.name?.split(' ').slice(1).join(' ') || "",
+                username: user.email!.split('@')[0],
+                password: await bcrypt.hash(Math.random().toString(36), 10),
                 image: user.image,
+                role: UserRole.USER, // Default role for new users
               }
             });
 
             user.id = String(newUser.userID);
             user.username = newUser.username;
             user.surname = newUser.surname;
+            user.role = newUser.role;
           } else {
             user.id = String(existingUser.userID);
             user.username = existingUser.username;
             user.surname = existingUser.surname;
+            user.role = existingUser.role;
           }
         } catch (error) {
           console.error("Error during Google sign in:", error);
@@ -97,6 +102,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.username = user.username;
         token.surname = user.surname;
+        token.role = user.role;
       }
       return token;
     },
@@ -106,6 +112,7 @@ export const authOptions: AuthOptions = {
         session.user.id = token.id as string;
         session.user.username = token.username as string;
         session.user.surname = token.surname as string;
+        session.user.role = token.role as UserRole;
       }
       return session;
     }

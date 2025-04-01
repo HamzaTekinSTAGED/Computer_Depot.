@@ -24,6 +24,7 @@ model User {
   image          String?        
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  role           UserRole       @default(USER)
 
   // İlişkiler
   products        Product[]     @relation("UserProducts")
@@ -31,6 +32,11 @@ model User {
   purchasesHistory TradeHistory[] @relation("Buyer")
   accounts        Account[]
   sessions        Session[]
+}
+
+enum UserRole {
+  ADMIN
+  USER
 }
 
 // NextAuth.js için gerekli modeller

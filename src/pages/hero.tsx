@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
+import AdminDashboard from "../components/AdminPages/AdminDashboard";
 
 const HeroPage = () => {
   const router = useRouter();
@@ -26,6 +27,13 @@ const HeroPage = () => {
     );
   }
 
+  if (session?.user?.role === "ADMIN") {
+    return <AdminDashboard 
+      session={session} 
+      isSidebarExpanded={isSidebarExpanded} 
+      setIsSidebarExpanded={setIsSidebarExpanded} 
+    />;
+  }
   return (
     <div className="flex h-screen relative">
       {/* Sidebar */}

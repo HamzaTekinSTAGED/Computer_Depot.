@@ -1,15 +1,16 @@
 import { DefaultSession } from "next-auth";
+import { UserRole } from "@prisma/client"
 
 declare module "next-auth" {
   /**
    * Session tipini genişleterek daha fazla kullanıcı bilgisi ekleyebiliriz
    */
   interface Session {
-    user: {
-      id: string;
-      username: string;
-      surname: string;
-    } & DefaultSession["user"];
+    user: User & {
+      name?: string | null
+      email?: string | null
+      image?: string | null
+    }
   }
 
   /**
@@ -19,5 +20,6 @@ declare module "next-auth" {
     id: string;
     username: string;
     surname: string;
+    role: UserRole;
   }
 } 

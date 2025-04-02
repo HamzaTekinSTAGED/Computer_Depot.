@@ -3,23 +3,23 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
-import AdminDashboard from "../components/AdminPages/AdminDashboard";
+import { useRoleBasedRedirect } from "../functions/functions";
 
 const HeroPage = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "unauthenticated" && !isRedirecting) {
-      setIsRedirecting(true);
+    if (status === "unauthenticated") {
       router.push("/login");
     }
-  }, [status, router, isRedirecting]);
+  }, [status, router]);
 
-  // Yükleniyor durumu
-  if (status === "loading") {
+  useRoleBasedRedirect(status, session, setIsLoading);
+
+  if (status === "loading" || isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
@@ -27,13 +27,10 @@ const HeroPage = () => {
     );
   }
 
-  if (session?.user?.role === "ADMIN") {
-    return <AdminDashboard 
-      session={session} 
-      isSidebarExpanded={isSidebarExpanded} 
-      setIsSidebarExpanded={setIsSidebarExpanded} 
-    />;
+  if (!session) {
+    return null;
   }
+
   return (
     <div className="flex h-screen relative">
       {/* Sidebar */}

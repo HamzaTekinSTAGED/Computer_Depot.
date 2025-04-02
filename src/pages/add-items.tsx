@@ -7,15 +7,22 @@ import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
 import { uploadToCloudinary } from "../utils/cloudinaryUpload";
 
+interface Category {
+  categoryID: number;
+  name: string;
+  description: string | null;
+}
+
 export default function SellPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [item, setItem] = useState({ 
     title: "", 
     description: "", 
     price: "", 
-    category: "",
+    categoryID: "",
     imageURL: ""
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -25,6 +32,22 @@ export default function SellPage() {
       router.push("/register");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setItem({ ...item, [e.target.name]: e.target.value });
@@ -82,7 +105,7 @@ export default function SellPage() {
 
     try {
       // Form validation
-      if (!item.title || !item.description || !item.price || !item.category) {
+      if (!item.title || !item.description || !item.price || !item.categoryID) {
         alert("Please fill in all fields");
         return;
       }
@@ -96,7 +119,7 @@ export default function SellPage() {
           title: item.title,
           description: item.description,
           price: parseFloat(item.price),
-          category: item.category,
+          categoryID: parseInt(item.categoryID),
           imageURL: item.imageURL || null,
           userID: parseInt(session.user.id),
           isSold: false
@@ -155,12 +178,13 @@ export default function SellPage() {
               <div className="flex-1 space-y-8">
                 <input name="title" type="text" placeholder="Item Title" value={item.title} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl" />
                 <input name="price" type="number" placeholder="Price ($)" value={item.price} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl" />
-                <select name="category" value={item.category} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl">
+                <select name="categoryID" value={item.categoryID} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl">
                   <option value="">Select Category</option>
-                  <option value="cpu">CPU</option>
-                  <option value="gpu">GPU</option>
-                  <option value="ram">RAM</option>
-                  <option value="storage">Storage</option>
+                  {categories.map((category) => (
+                    <option key={category.categoryID} value={category.categoryID}>
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

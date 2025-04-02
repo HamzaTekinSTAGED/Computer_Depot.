@@ -77,13 +77,22 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+model Category {
+  categoryID   Int       @id @default(autoincrement())
+  name         String    @unique
+  description  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[]
+}
 
 model Product {
   productID      Int       @id @default(autoincrement())
   title          String
   description    String
   price          Float
-  category       String
+  categoryID     Int
+  category       Category  @relation(fields: [categoryID], references: [categoryID])
   imageURL       String
   isSold         Boolean   @default(false)
   publishingDate DateTime  @default(now())
@@ -96,7 +105,7 @@ model Product {
   tradeHistory TradeHistory[]
 
   @@index([userID]) // Foreign key için index
-  @@index([category]) // Kategori aramaları için index
+  @@index([categoryID]) // Kategori aramaları için index
 }
 
 model TradeHistory {

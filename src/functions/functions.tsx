@@ -32,4 +32,38 @@ export const useAuthCheck = (
       }
     };
   }, [status, router, redirectPath, setIsLoading]);
+};
+
+export const useRoleBasedRedirect = (
+  status: "loading" | "authenticated" | "unauthenticated",
+  session: Session | null,
+  setIsLoading: (value: boolean) => void
+) => {
+  const router = useRouter();
+  const redirectTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  useEffect(() => {
+    if (redirectTimeoutRef.current) {
+      clearTimeout(redirectTimeoutRef.current);
+    }
+
+    if (status === "authenticated" && session) {
+      redirectTimeoutRef.current = setTimeout(() => {
+        if (session.user.role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/hero");
+        }
+      }, 100);
+    } else {
+      setIsLoading(false);
+    }
+
+    return () => {
+      if (redirectTimeoutRef.current) {
+        clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, [status, session, router, setIsLoading]);
 }; 
+

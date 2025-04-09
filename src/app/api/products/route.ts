@@ -26,12 +26,12 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, price, category, imageURL, userID } = body;
+    const { title, description, price, amount, category, imageURL, userID } = body;
 
     // Validate required fields
-    if (!title || !description || !price || !category || !userID) {
+    if (!title || !description || !price || !category || !userID || !amount) {
       return NextResponse.json(
-        { error: 'Başlık, açıklama, fiyat ve kategori alanları zorunludur' },
+        { error: 'Title, description, price, amount and category fields are required' },
         { status: 400 }
       );
     }
@@ -39,7 +39,15 @@ export async function POST(request: Request) {
     // Validate price
     if (isNaN(price) || price <= 0) {
       return NextResponse.json(
-        { error: 'Geçerli bir fiyat giriniz' },
+        { error: 'Please enter a valid price' },
+        { status: 400 }
+      );
+    }
+
+    // Validate amount
+    if (isNaN(amount) || amount <= 0) {
+      return NextResponse.json(
+        { error: 'Please enter a valid amount' },
         { status: 400 }
       );
     }
@@ -49,13 +57,11 @@ export async function POST(request: Request) {
         title,
         description,
         price: parseFloat(price),
-        category,
-        imageURL: imageURL || null,
-        user: {
-          connect: {
-            userID: userID
-          }
-        }
+        amount: parseInt(amount),
+        categoryID: parseInt(category),
+        imageURL: imageURL || "",
+        userID: parseInt(userID),
+        isSold: false
       },
       include: {
         user: {
@@ -70,10 +76,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    console.error('Ürün oluşturulurken hata:', error);
+    console.error('Error creating product:', error);
     return NextResponse.json({ 
-      error: 'Ürün oluşturulamadı',
-      details: error instanceof Error ? error.message : 'Bilinmeyen hata'
+      error: 'Failed to create product',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }

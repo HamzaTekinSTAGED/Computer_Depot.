@@ -18,6 +18,7 @@ export default function SellPage() {
   const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [item, setItem] = useState({ 
     title: "", 
     description: "", 
@@ -27,6 +28,7 @@ export default function SellPage() {
     imageURL: ""
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -51,39 +53,35 @@ export default function SellPage() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setItem({ ...item, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Input sanitization
+    const sanitizedValue = value.replace(/[<>]/g, '');
+    
+    setItem(prev => ({ ...prev, [name]: sanitizedValue }));
+    setError(null);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      // File size check (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image size should be less than 5MB");
+        return;
+      }
+
       try {
-        const file = e.target.files[0];
-        console.log('Selected file:', {
-          name: file.name,
-          size: file.size,
-          type: file.type
-        });
-
-        // Show preview immediately
         setImagePreview(URL.createObjectURL(file));
-        
-        // Verify environment variables
-        console.log('Cloudinary config:', {
-          cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-          hasApiKey: !!process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
-        });
-
-        // Upload to Cloudinary
         const cloudinaryUrl = await uploadToCloudinary(file);
-        console.log('Cloudinary upload completed:', cloudinaryUrl);
-        
         setItem(prev => ({ ...prev, imageURL: cloudinaryUrl }));
       } catch (error) {
         console.error('Error uploading image:', error);
-        alert('Resim yükleme hatası. Lütfen tekrar deneyin. Hata: ' + (error instanceof Error ? error.message : String(error)));
+        setError("Failed to upload image. Please try again.");
         setImagePreview(null);
       }
-      e.target.value = ""; // Reset file input
+      e.target.value = "";
     }
   };
 
@@ -98,22 +96,17 @@ export default function SellPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
     
     if (!session?.user?.id) {
-      alert("Please login to add a product");
+      setError("Please login to add a product");
+      setIsSubmitting(false);
       return;
     }
 
     try {
       // Form validation
-      console.log('Form values:', {
-        title: item.title,
-        description: item.description,
-        price: item.price,
-        amount: item.amount,
-        categoryID: item.categoryID
-      });
-
       if (!item.title || !item.description || !item.price || !item.categoryID || !item.amount) {
         const missingFields = [];
         if (!item.title) missingFields.push("title");
@@ -122,24 +115,37 @@ export default function SellPage() {
         if (!item.amount) missingFields.push("amount");
         if (!item.categoryID) missingFields.push("category");
         
-        const errorMessage = `Please fill in the following fields: ${missingFields.join(", ")}`;
-        console.error('Validation error:', errorMessage);
-        alert(errorMessage);
+        setError(`Please fill in the following fields: ${missingFields.join(", ")}`);
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Price validation
+      const price = parseFloat(item.price);
+      if (isNaN(price) || price <= 0) {
+        setError("Please enter a valid price");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Amount validation
+      const amount = parseInt(item.amount);
+      if (isNaN(amount) || amount <= 0 || amount > 9999) {
+        setError("Please enter a valid amount (1-9999)");
+        setIsSubmitting(false);
         return;
       }
 
       const productData = {
         title: item.title,
         description: item.description,
-        price: parseFloat(item.price),
-        amount: parseInt(item.amount),
+        price: price,
+        amount: amount,
         category: item.categoryID,
         imageURL: item.imageURL || null,
         userID: parseInt(session.user.id),
         isSold: false
       };
-
-      console.log('Submitting product data:', productData);
 
       const response = await fetch('/api/products', {
         method: 'POST',
@@ -150,17 +156,17 @@ export default function SellPage() {
       });
 
       const data = await response.json();
-      console.log('Server response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || data.details || 'Failed to create product');
       }
 
       router.push('/list-items');
-      alert("Product added successfully!");
     } catch (error) {
       console.error('Error details:', error);
-      alert(error instanceof Error ? error.message : "An error occurred while adding the product. Please try again.");
+      setError(error instanceof Error ? error.message : "An error occurred while adding the product. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,6 +180,11 @@ export default function SellPage() {
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
         <div className="max-w-6xl mx-auto mt-10 p-8 bg-white shadow-xl rounded-xl">
           <h2 className="text-2xl font-semibold mb-4">Add Product</h2>
+          {error && (
+            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
             <div className="flex space-x-12">
               <div className="flex flex-col items-center space-y-4">
@@ -200,7 +211,16 @@ export default function SellPage() {
                 )}
               </div>
               <div className="flex-1 space-y-8">
-                <input name="title" type="text" placeholder="Product Title" value={item.title} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl" />
+                <input 
+                  name="title" 
+                  type="text" 
+                  placeholder="Product Title" 
+                  value={item.title} 
+                  onChange={handleChange} 
+                  required 
+                  maxLength={100}
+                  className="w-full p-4 border rounded-lg text-xl" 
+                />
                 <input 
                   name="price" 
                   type="number" 
@@ -208,9 +228,21 @@ export default function SellPage() {
                   value={item.price} 
                   onChange={handleChange} 
                   required 
+                  min="0.01"
+                  step="0.01"
                   className="w-full p-4 border rounded-lg text-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                 />
-                <input name="amount" type="number" placeholder="Amount" value={item.amount} onChange={handleChange} required min="1" className="w-full p-4 border rounded-lg text-xl" />
+                <input 
+                  name="amount" 
+                  type="number" 
+                  placeholder="Amount" 
+                  value={item.amount} 
+                  onChange={handleChange} 
+                  required 
+                  min="1"
+                  max="9999"
+                  className="w-full p-4 border rounded-lg text-xl" 
+                />
                 <select name="categoryID" value={item.categoryID} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl">
                   <option value="">Select Category</option>
                   {categories.map((category) => (
@@ -221,8 +253,25 @@ export default function SellPage() {
                 </select>
               </div>
             </div>
-            <textarea name="description" placeholder="Product Description" value={item.description} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl" rows={5} />
-            <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-lg text-xl font-semibold">Add Product</button>
+            <textarea 
+              name="description" 
+              placeholder="Product Description" 
+              value={item.description} 
+              onChange={handleChange} 
+              required 
+              maxLength={1000}
+              className="w-full p-4 border rounded-lg text-xl" 
+              rows={5} 
+            />
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`w-full py-4 rounded-lg text-xl font-semibold text-white ${
+                isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+            >
+              {isSubmitting ? 'Adding...' : 'Add Product'}
+            </button>
           </form>
         </div>
       </div>

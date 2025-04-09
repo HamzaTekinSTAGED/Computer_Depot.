@@ -91,9 +91,10 @@ model Product {
   title          String
   description    String
   price          Float
+  amount         Int       @default(1)
   categoryID     Int
   category       Category  @relation(fields: [categoryID], references: [categoryID])
-  imageURL       String
+  imageURL       String?
   isSold         Boolean   @default(false)
   publishingDate DateTime  @default(now())
 

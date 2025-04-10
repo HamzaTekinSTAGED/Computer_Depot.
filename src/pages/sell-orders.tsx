@@ -7,11 +7,14 @@ import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
 
 interface Product {
-  id: number;
+  productID: number;
   title: string;
   description: string;
   price: number;
-  category: string;
+  categoryID: number;
+  category: {
+    name: string;
+  };
   imageURL: string | null;
   userID: number;
 }
@@ -66,7 +69,7 @@ export default function SellOrdersPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
-                <div key={product.id} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div key={product.productID} className="bg-white rounded-xl shadow-md overflow-hidden">
                   {product.imageURL && (
                     <div className="h-48 w-full overflow-hidden">
                       <img
@@ -80,7 +83,7 @@ export default function SellOrdersPage() {
                     <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
                     <p className="text-gray-600 mb-2">{product.description}</p>
                     <p className="text-lg font-bold mb-2">${product.price}</p>
-                    <p className="text-sm text-gray-500 mb-4">Kategori: {product.category}</p>
+                    <p className="text-sm text-gray-500 mb-4">Kategori: {product.category.name}</p>
                   </div>
                 </div>
               ))}

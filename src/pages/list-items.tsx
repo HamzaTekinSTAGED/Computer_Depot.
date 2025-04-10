@@ -7,7 +7,10 @@ import { useSession } from "next-auth/react";
 
 interface Product {
   title: string;
-  category: string;
+  categoryID: number;
+  category: {
+    name: string;
+  };
   imageURL: string;
   price: number;
   isSold: boolean;
@@ -15,13 +18,37 @@ interface Product {
   productID: number;
 }
 
+interface Category {
+  categoryID: number;
+  name: string;
+  description: string | null;
+}
+
 export default function ProductList() {
   const { data: session } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); 
-  const [category, setCategory] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
   const [isPurchasing, setIsPurchasing] = useState<number | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) {
+          throw new Error("Kategoriler getirilemedi.");
+        }
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Kategori hatası:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -49,12 +76,10 @@ export default function ProductList() {
 
   useEffect(() => {
     const filtered = products.filter((product) => {
-      return category === "" || product.category === category;
+      return selectedCategoryId === "" || product.categoryID === selectedCategoryId;
     });
     setFilteredProducts(filtered);
-  }, [category, products]);
-
-  const uniqueCategories = [...new Set(products.map(product => product.category))];
+  }, [selectedCategoryId, products]);
 
   const handlePurchase = async (productId: number) => {
     try {
@@ -94,12 +119,12 @@ export default function ProductList() {
           <div className="mb-6 flex gap-4">
             <select
               className="p-2 border rounded"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={selectedCategoryId}
+              onChange={(e) => setSelectedCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
             >
               <option value="">Select Category</option>
-              {uniqueCategories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+              {categories.map((cat) => (
+                <option key={cat.categoryID} value={cat.categoryID}>{cat.name}</option>
               ))}
             </select>
           </div>
@@ -114,7 +139,7 @@ export default function ProductList() {
                   )}
                   <div className="p-6">
                     <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
-                    <p className="text-gray-600 text-sm">{product.category}</p>
+                    <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
                     <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
                     <button
                       onClick={() => handlePurchase(product.productID)}

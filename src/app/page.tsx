@@ -1,4 +1,4 @@
-import RegisterPage from "@/pages/register";
+import RegisterPage from "@/pages/Authentication/register";
 
 export default async function Home() {
   

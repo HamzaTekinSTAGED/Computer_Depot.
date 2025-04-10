@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import Sidebar from "../components/sidebar";
-import UserInfo from "../components/UserInfo";
+import Sidebar from "../../components/sidebar";
+import UserInfo from "../../components/UserInfo";
 
 interface Product {
   productID: number;
@@ -28,7 +28,7 @@ export default function SellOrdersPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/register");
+      router.push("/Authentication/register");
     }
   }, [status, router]);
 

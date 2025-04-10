@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { BackgroundPaths } from "../components/background-paths";
+import { BackgroundPaths } from "../../components/background-paths";
 import { signIn, useSession } from "next-auth/react";
 import { useAuthCheck } from "@/functions/functions";
 
@@ -109,7 +109,7 @@ export default function LoginPage() {
 
             {/* Forgot Password */}
             <div className="text-right mb-4">
-              <Link href="/forgetpassw" className="text-sm text-black hover:underline">Forgot Password?</Link>
+              <Link href="/Authentication/forgetpassw" className="text-sm text-black hover:underline">Forgot Password?</Link>
             </div>
 
             {/* Sign In Button */}
@@ -127,7 +127,7 @@ export default function LoginPage() {
           {/* Register */}
           <p className="text-center text-black text-sm mt-6">
             Don&apos;t have an account?{" "}
-            <Link href="/" className="font-medium text-indigo-600 hover:underline">Register for free</Link>
+            <Link href="/Authentication/register" className="font-medium text-indigo-600 hover:underline">Register for free</Link>
           </p>
         </div>
       </div>

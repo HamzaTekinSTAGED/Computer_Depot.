@@ -26,14 +26,14 @@ const UserInfo: FC<UserInfoProps> = ({ session }) => {
   const handleLogout = async () => {
     try {
       await signOut({ redirect: false });
-      router.push("/login");
+      router.push("/Authentication/login");
     } catch (error) {
       console.error("Logout error: ", error);
     }
   };
 
   const handlePasswordChange = () => {
-    router.push("/password-change");
+    router.push("/Authentication/password-change");
   };
 
   const user = session.user;

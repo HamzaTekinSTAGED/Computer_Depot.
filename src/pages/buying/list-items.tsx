@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Sidebar from "../components/sidebar";
-import UserInfo from "../components/UserInfo";
+import Sidebar from "../../components/sidebar";
+import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
 
 interface Product {

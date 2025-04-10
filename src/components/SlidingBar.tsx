@@ -37,7 +37,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
             <>
               <li>
                 <button
-                  onClick={() => router.push("/my-orders")}
+                  onClick={() => router.push("/buying/my-orders")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-blue-50 transition-all duration-200 group"
                 >
                   <span className="text-gray-600 group-hover:text-blue-600 transition-colors duration-200">
@@ -47,7 +47,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
               </li>
               <li>
                 <button
-                  onClick={() => router.push("/list-items")}
+                  onClick={() => router.push("/buying/list-items")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-blue-50 transition-all duration-200 group"
                 >
                   <span className="text-gray-600 group-hover:text-blue-600 transition-colors duration-200">
@@ -60,7 +60,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
             <>
               <li>
                 <button
-                  onClick={() => router.push("/sell-orders")}
+                  onClick={() => router.push("/selling/sell-orders")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-green-50 transition-all duration-200 group"
                 >
                   <span className="text-gray-600 group-hover:text-green-600 transition-colors duration-200">
@@ -70,7 +70,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
               </li>
               <li>
                 <button
-                  onClick={() => router.push("/add-items")}
+                  onClick={() => router.push("/selling/add-items")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-green-50 transition-all duration-200 group"
                 >
                   <span className="text-gray-600 group-hover:text-green-600 transition-colors duration-200">

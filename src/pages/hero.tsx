@@ -13,7 +13,7 @@ const HeroPage = () => {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/Authentication/login");
     }
   }, [status, router]);
 

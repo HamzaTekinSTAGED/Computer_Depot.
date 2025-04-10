@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import Sidebar from "../components/sidebar";
-import UserInfo from "../components/UserInfo";
-import { uploadToCloudinary } from "../utils/cloudinaryUpload";
+import Sidebar from "../../components/sidebar";
+import UserInfo from "../../components/UserInfo";
+import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 
 interface Category {
   categoryID: number;
@@ -32,7 +32,7 @@ export default function SellPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/register");
+      router.push("/Authentication/register");
     }
   }, [status, router]);
 
@@ -161,7 +161,7 @@ export default function SellPage() {
         throw new Error(data.error || data.details || 'Failed to create product');
       }
 
-      router.push('/list-items');
+      router.push('/buying/list-items');
     } catch (error) {
       console.error('Error details:', error);
       setError(error instanceof Error ? error.message : "An error occurred while adding the product. Please try again.");

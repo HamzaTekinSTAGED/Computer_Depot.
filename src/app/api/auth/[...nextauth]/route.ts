@@ -6,8 +6,6 @@ import { db } from "@/lib/db";
 import { UserRole } from "@prisma/client";
 
 export const authOptions: AuthOptions = {
-  // Adapter'ı şimdilik kaldırıyoruz
-  // adapter: PrismaAdapter(db),
   session: {
     strategy: "jwt",
   },
@@ -23,19 +21,16 @@ export const authOptions: AuthOptions = {
           return null;
         }
 
-        // Kullanıcıyı veritabanında ara
         const user = await db.user.findUnique({
           where: {
             email: credentials.email
           }
         });
 
-        // Kullanıcı yoksa veya şifre yanlışsa null döndür
         if (!user || !(await bcrypt.compare(credentials.password, user.password))) {
           return null;
         }
 
-        // Kimlik doğrulama başarılı ise kullanıcı nesnesini döndür
         return {
           id: String(user.userID),
           email: user.email,
@@ -60,13 +55,11 @@ export const authOptions: AuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         try {
-          // Check if user already exists
           const existingUser = await db.user.findUnique({
             where: { email: user.email! }
           });
 
           if (!existingUser) {
-            // Create new user with Google data
             const newUser = await db.user.create({
               data: {
                 email: user.email!,
@@ -75,7 +68,7 @@ export const authOptions: AuthOptions = {
                 username: user.email!.split('@')[0],
                 password: await bcrypt.hash(Math.random().toString(36), 10),
                 image: user.image,
-                role: UserRole.USER, // Default role for new users
+                role: UserRole.USER,
               }
             });
 
@@ -96,7 +89,6 @@ export const authOptions: AuthOptions = {
       }
       return true;
     },
-    // JWT oluşturma sırasında çalışır
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
@@ -106,7 +98,6 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
-    // Oturum oluşturma sırasında çalışır
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
@@ -121,4 +112,5 @@ export const authOptions: AuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
-export default NextAuth(authOptions); 
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST }; 

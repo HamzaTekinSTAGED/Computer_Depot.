@@ -48,13 +48,18 @@ export const useRoleBasedRedirect = (
     }
 
     if (status === "authenticated" && session) {
+      
       redirectTimeoutRef.current = setTimeout(() => {
         if (session.user.role === "ADMIN") {
           router.push("/admin");
         } else {
           router.push("/hero");
         }
-      }, 100);
+        setIsLoading(false);
+      }, 300);
+    } else if (status === "unauthenticated") {
+      router.push("/Authentication/login");
+      setIsLoading(false);
     } else {
       setIsLoading(false);
     }

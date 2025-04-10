@@ -1,17 +1,16 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { db } from "@/lib/db";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
-  }
-
+export async function POST(req: Request) {
   try {
-    const { username, name, surname, email, newPassword } = req.body;
+    const { username, name, surname, email, newPassword } = await req.json();
 
     if (!username || !name || !surname || !email || !newPassword) {
-      return res.status(400).json({ error: "Tüm alanlar gereklidir" });
+      return NextResponse.json(
+        { error: "Tüm alanlar gereklidir" },
+        { status: 400 }
+      );
     }
 
     // Kullanıcıyı bilgilerle eşleştir
@@ -25,7 +24,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     if (!user) {
-      return res.status(200).json({ error: "Kullanıcı bilgileri eşleşmiyor" });
+      return NextResponse.json(
+        { error: "Kullanıcı bilgileri eşleşmiyor" },
+        { status: 200 }
+      );
     }
 
     // Yeni şifreyi hashle
@@ -41,8 +43,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     });
 
-    return res.status(200).json({ success: true, message: "Şifre başarıyla güncellendi" });
+    return NextResponse.json(
+      { success: true, message: "Şifre başarıyla güncellendi" },
+      { status: 200 }
+    );
   } catch (error) {
-    return res.status(200).json({ error: "Şifre sıfırlanırken bir hata oluştu" });
+    return NextResponse.json(
+      { error: "Şifre sıfırlanırken bir hata oluştu" },
+      { status: 200 }
+    );
   }
 } 

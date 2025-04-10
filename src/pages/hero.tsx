@@ -37,7 +37,7 @@ const HeroPage = () => {
       <Sidebar onExpand={setIsSidebarExpanded} />
 
       {/* Main Content */}
-      <main className={`flex-1 flex flex-col items-center justify-center text-center transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
+      <main className={`flex-1 flex flex-col items-center justify-center text-center transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-[304px]' : 'ml-20'}`}>
         <h1 className="text-4xl font-bold">
           Find, best tech equipment - quickly and easily!
         </h1>

@@ -13,6 +13,7 @@ interface Product {
   };
   imageURL: string;
   price: number;
+  amount: number;
   isSold: boolean;
   userID: number;
   productID: number;
@@ -141,6 +142,7 @@ export default function ProductList() {
                     <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
                     <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
                     <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
+                    <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
                     <button
                       onClick={() => handlePurchase(product.productID)}
                       disabled={isPurchasing === product.productID}

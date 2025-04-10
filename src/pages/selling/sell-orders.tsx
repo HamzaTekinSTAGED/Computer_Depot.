@@ -11,6 +11,7 @@ interface Product {
   title: string;
   description: string;
   price: number;
+  amount: number;
   categoryID: number;
   category: {
     name: string;
@@ -83,6 +84,7 @@ export default function SellOrdersPage() {
                     <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
                     <p className="text-gray-600 mb-2">{product.description}</p>
                     <p className="text-lg font-bold mb-2">${product.price}</p>
+                    <p className="text-sm text-gray-500 mb-2">Amount: {product.amount}</p>
                     <p className="text-sm text-gray-500 mb-4">Kategori: {product.category.name}</p>
                   </div>
                 </div>

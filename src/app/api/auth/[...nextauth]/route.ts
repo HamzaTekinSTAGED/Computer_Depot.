@@ -47,9 +47,9 @@ export const authOptions: AuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/login",
-    signOut: "/",
-    error: "/login",
+    signIn: "/Authentication/login",
+    signOut: "/Authentication/logout",
+    error: "/Authentication/error",
   },
   callbacks: {
     async signIn({ user, account, profile }) {

@@ -49,14 +49,15 @@ export const authOptions: AuthOptions = {
           surname: user.surname,
           username: user.username,
           image: user.image,
+          role: user.role,
         };
       }
     })
   ],
   pages: {
-    signIn: "/auth/login",
-    signOut: "/auth/logout",
-    error: "/auth/error",
+    signIn: "/Authentication/login",
+    signOut: "/Authentication/logout",
+    error: "/Authentication/error",
   },
   callbacks: {
     // JWT oluşturma sırasında çalışır

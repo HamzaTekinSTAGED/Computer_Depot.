@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
+import ProductPopup from "../../components/ProductPopup";
 
 interface Product {
   title: string;
@@ -17,6 +18,7 @@ interface Product {
   isSold: boolean;
   userID: number;
   productID: number;
+  description: string;
 }
 
 interface Category {
@@ -33,6 +35,7 @@ export default function ProductList() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
   const [isPurchasing, setIsPurchasing] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -82,6 +85,14 @@ export default function ProductList() {
     setFilteredProducts(filtered);
   }, [selectedCategoryId, products]);
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleClosePopup = () => {
+    setSelectedProduct(null);
+  };
+
   const handlePurchase = async (productId: number) => {
     try {
       setIsPurchasing(productId);
@@ -101,6 +112,7 @@ export default function ProductList() {
       // Update the products list to remove the purchased item
       setProducts(products.filter(product => product.productID !== productId));
       setFilteredProducts(filteredProducts.filter(product => product.productID !== productId));
+      setSelectedProduct(null);
     } catch (error) {
       console.error("Purchase error:", error);
       alert(error instanceof Error ? error.message : "Purchase failed");
@@ -131,10 +143,14 @@ export default function ProductList() {
           </div>
           
           {/* Ürün Listesi */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product, index) => (
-                <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative">
+                <div 
+                  key={index} 
+                  className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                  onClick={() => handleProductClick(product)}
+                >
                   {product.imageURL && (
                     <img src={product.imageURL} alt={product.title} className="w-full h-48 object-cover" />
                   )}
@@ -143,13 +159,6 @@ export default function ProductList() {
                     <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
                     <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
                     <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
-                    <button
-                      onClick={() => handlePurchase(product.productID)}
-                      disabled={isPurchasing === product.productID}
-                      className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
-                    >
-                      {isPurchasing === product.productID ? "Purchasing..." : "Buy Now"}
-                    </button>
                   </div>
                 </div>
               ))
@@ -160,6 +169,16 @@ export default function ProductList() {
         </div>
       </div>
       {session && <UserInfo session={session} />}
+      
+      {/* Pop-up */}
+      {selectedProduct && (
+        <ProductPopup
+          product={selectedProduct}
+          onClose={handleClosePopup}
+          onPurchase={handlePurchase}
+          isPurchasing={isPurchasing === selectedProduct.productID}
+        />
+      )}
     </div>
   );
 }

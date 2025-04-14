@@ -17,6 +17,7 @@ interface TradeHistory {
     title: string;
     description: string;
     imageURL: string;
+    amount: number;
   };
   buyer: {
     username: string;
@@ -24,6 +25,7 @@ interface TradeHistory {
   seller: {
     username: string;
   };
+  amount: number;
 }
 
 export default function MyOrders() {
@@ -77,6 +79,9 @@ export default function MyOrders() {
               <p className="text-gray-800 font-medium">${trade.price}</p>
               <p className="text-gray-600 text-sm">
                 Bought from: {trade.seller.username}
+              </p>
+              <p className="text-gray-600 text-sm">
+                Purchased Amount: {trade.amount}
               </p>
               <p className="text-gray-500 text-sm">
                 Date: {new Date(trade.sellingDate).toLocaleDateString()}

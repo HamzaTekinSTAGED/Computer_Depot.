@@ -42,6 +42,7 @@ export async function GET(request: Request) {
             title: true,
             description: true,
             imageURL: true,
+            amount: true,
           },
         },
         buyer: {
@@ -101,13 +102,15 @@ export async function POST(request: Request) {
 
     // Create transaction to update product and create trade history
     const result = await db.$transaction([
-      db.$executeRaw`UPDATE Product SET isSold = true WHERE productID = ${productId}`,
+      db.$executeRaw`UPDATE Product SET amount = amount - 1 WHERE productID = ${productId}`,
+      db.$executeRaw`UPDATE Product SET isSold = true WHERE productID = ${productId} AND amount = 0`,
       db.tradeHistory.create({
         data: {
           buyerID: Number(session.user.id),
           sellerID: product.userID,
           productID: productId,
           price: product.price,
+          amount: 1,
         },
         include: {
           buyer: {
@@ -124,7 +127,14 @@ export async function POST(request: Request) {
               surname: true,
             },
           },
-          product: true,
+          product: {
+            select: {
+              title: true,
+              description: true,
+              imageURL: true,
+              amount: true,
+            },
+          },
         },
       }),
     ]);

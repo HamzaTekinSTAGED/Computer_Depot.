@@ -110,19 +110,19 @@ model Product {
 }
 
 model TradeHistory {
-  id           Int      @id @default(autoincrement()) // PK olarak id ekledim
+  id           Int      @id @default(autoincrement())
   buyerID      Int
   sellerID     Int
   productID    Int
   price        Float
+  amount       Int      @default(1)
   sellingDate  DateTime @default(now())
 
   // İlişkiler
   buyer   User    @relation("Buyer", fields: [buyerID], references: [userID])
   seller  User    @relation("Seller", fields: [sellerID], references: [userID])
-
   product Product @relation(fields: [productID], references: [productID])
 
-  @@index([buyerID, sellerID]) // Alıcı/satıcı sorguları için composite index
+  @@index([buyerID, sellerID])
   @@index([productID])
 }

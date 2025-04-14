@@ -109,9 +109,27 @@ export default function ProductList() {
         throw new Error(error.error || "Purchase failed");
       }
 
-      // Update the products list to remove the purchased item
-      setProducts(products.filter(product => product.productID !== productId));
-      setFilteredProducts(filteredProducts.filter(product => product.productID !== productId));
+      // Update the products list to reflect the new amount
+      setProducts(products.map(product => {
+        if (product.productID === productId) {
+          return {
+            ...product,
+            amount: product.amount - 1,
+            isSold: product.amount - 1 === 0
+          };
+        }
+        return product;
+      }));
+      setFilteredProducts(filteredProducts.map(product => {
+        if (product.productID === productId) {
+          return {
+            ...product,
+            amount: product.amount - 1,
+            isSold: product.amount - 1 === 0
+          };
+        }
+        return product;
+      }));
       setSelectedProduct(null);
     } catch (error) {
       console.error("Purchase error:", error);

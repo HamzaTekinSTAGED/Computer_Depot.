@@ -21,6 +21,33 @@ interface ProductPopupProps {
 }
 
 const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isPurchasing }) => {
+  // Sepete ekleme fonksiyonu
+  const handleAddToCart = () => {
+    if (typeof window !== 'undefined') {
+      // Mevcut sepeti al
+      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+      
+      // Ürün zaten sepette mi kontrol et
+      const isAlreadyInCart = cartItems.some((item: any) => item.productID === product.productID);
+      
+      if (!isAlreadyInCart) {
+        // Ürünü sepete ekle
+        cartItems.push({
+          productID: product.productID,
+          title: product.title,
+          price: product.price,
+          imageURL: product.imageURL
+        });
+        
+        // Sepeti güncelle
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        
+        // Storage event'ini manuel olarak tetikle (aynı pencerede çalışması için)
+        window.dispatchEvent(new Event('storage'));
+      }
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 relative">
@@ -52,13 +79,22 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
             <p className="text-gray-600">Amount: {product.amount}</p>
             <p className="text-gray-600">Category: {product.category.name}</p>
             
-            <button
-              onClick={() => onPurchase(product.productID)}
-              disabled={isPurchasing}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
-            >
-              {isPurchasing ? "Purchasing..." : "Buy Now"}
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+              >
+                Add to Cart
+              </button>
+              
+              <button
+                onClick={() => onPurchase(product.productID)}
+                disabled={isPurchasing}
+                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
+              >
+                {isPurchasing ? "Purchasing..." : "Buy Now"}
+              </button>
+            </div>
           </div>
         </div>
       </div>

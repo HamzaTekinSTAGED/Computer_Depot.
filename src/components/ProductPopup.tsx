@@ -30,7 +30,7 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
   // Sepete ekleme fonksiyonu
   const handleAddToCart = async () => {
     if (!session) {
-      setMessage({ text: 'Sepete ürün eklemek için giriş yapmalısınız', type: 'error' });
+      setMessage({ text: 'You must be logged in to add products to the cart', type: 'error' });
       return;
     }
 
@@ -50,10 +50,10 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Sepete ekleme başarısız oldu');
+        throw new Error(errorData.error || 'Failed to add to cart');
       }
 
-      setMessage({ text: 'Ürün sepete eklendi', type: 'success' });
+      setMessage({ text: 'Product added to cart', type: 'success' });
 
       // Mesajı 3 saniye sonra temizle
       setTimeout(() => {
@@ -62,7 +62,7 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
     } catch (error) {
       console.error('Sepete ekleme hatası:', error);
       setMessage({
-        text: error instanceof Error ? error.message : 'Sepete ekleme başarısız oldu',
+        text: error instanceof Error ? error.message : 'Failed to add to cart',
         type: 'error'
       });
 
@@ -110,11 +110,11 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
             <h2 className="text-2xl font-semibold">{product.title}</h2>
             <p className="text-gray-600">{product.description}</p>
             <p className="text-lg font-medium">${product.price}</p>
-            <p className="text-gray-600">Miktar: {product.amount}</p>
-            <p className="text-gray-600">Kategori: {product.category.name}</p>
+            <p className="text-gray-600">Quantity: {product.amount}</p>
+            <p className="text-gray-600">Category: {product.category.name}</p>
 
             <div className="flex items-center space-x-2">
-              <label htmlFor="quantity" className="text-gray-700">Miktar:</label>
+              <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
               <select
                 id="quantity"
                 value={quantity}
@@ -135,7 +135,7 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
                 disabled={isAddingToCart}
                 className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
               >
-                {isAddingToCart ? "Ekleniyor..." : "Sepete Ekle"}
+                {isAddingToCart ? "Adding..." : "Add to Cart"}
               </button>
 
               <button
@@ -143,7 +143,7 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
                 disabled={isPurchasing}
                 className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
               >
-                {isPurchasing ? "Satın Alınıyor..." : "Hemen Satın Al"}
+                {isPurchasing ? "Purchasing..." : "Buy Now"}
               </button>
             </div>
           </div>

@@ -6,10 +6,10 @@ import { useRouter } from 'next/navigation';
 const Cart = () => {
   const { data: session } = useSession();
   const router = useRouter();
-  
+
   const handleClick = () => {
     if (session) {
-      router.push('/cart');
+      router.push('/buying/cart');
     } else {
       router.push('/login');
     }

@@ -30,13 +30,13 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
   // Sepete ekleme fonksiyonu
   const handleAddToCart = async () => {
     if (!session) {
-      setMessage({ text: 'You need to be logged in to add items to cart', type: 'error' });
+      setMessage({ text: 'Sepete ürün eklemek için giriş yapmalısınız', type: 'error' });
       return;
     }
 
     try {
       setIsAddingToCart(true);
-      
+
       const response = await fetch('/api/cart', {
         method: 'POST',
         headers: {
@@ -50,23 +50,23 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add to cart');
+        throw new Error(errorData.error || 'Sepete ekleme başarısız oldu');
       }
 
-      setMessage({ text: 'Added to cart successfully', type: 'success' });
-      
-      // Clear message after 3 seconds
+      setMessage({ text: 'Ürün sepete eklendi', type: 'success' });
+
+      // Mesajı 3 saniye sonra temizle
       setTimeout(() => {
         setMessage(null);
       }, 3000);
     } catch (error) {
-      console.error('Error adding to cart:', error);
-      setMessage({ 
-        text: error instanceof Error ? error.message : 'Failed to add to cart', 
-        type: 'error' 
+      console.error('Sepete ekleme hatası:', error);
+      setMessage({
+        text: error instanceof Error ? error.message : 'Sepete ekleme başarısız oldu',
+        type: 'error'
       });
-      
-      // Clear message after 3 seconds
+
+      // Mesajı 3 saniye sonra temizle
       setTimeout(() => {
         setMessage(null);
       }, 3000);
@@ -86,13 +86,13 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
-        
+
         {message && (
           <div className={`mb-4 p-3 rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
             {message.text}
           </div>
         )}
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="relative h-64 md:h-80">
             {product.imageURL && (
@@ -105,16 +105,16 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
               />
             )}
           </div>
-          
+
           <div className="space-y-4">
             <h2 className="text-2xl font-semibold">{product.title}</h2>
             <p className="text-gray-600">{product.description}</p>
             <p className="text-lg font-medium">${product.price}</p>
-            <p className="text-gray-600">Amount: {product.amount}</p>
-            <p className="text-gray-600">Category: {product.category.name}</p>
-            
+            <p className="text-gray-600">Miktar: {product.amount}</p>
+            <p className="text-gray-600">Kategori: {product.category.name}</p>
+
             <div className="flex items-center space-x-2">
-              <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
+              <label htmlFor="quantity" className="text-gray-700">Miktar:</label>
               <select
                 id="quantity"
                 value={quantity}
@@ -128,22 +128,22 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
                 ))}
               </select>
             </div>
-            
+
             <div className="flex space-x-2">
               <button
                 onClick={handleAddToCart}
                 disabled={isAddingToCart}
                 className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
               >
-                {isAddingToCart ? "Adding..." : "Add to Cart"}
+                {isAddingToCart ? "Ekleniyor..." : "Sepete Ekle"}
               </button>
-              
+
               <button
                 onClick={() => onPurchase(product.productID)}
                 disabled={isPurchasing}
                 className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
               >
-                {isPurchasing ? "Purchasing..." : "Buy Now"}
+                {isPurchasing ? "Satın Alınıyor..." : "Hemen Satın Al"}
               </button>
             </div>
           </div>

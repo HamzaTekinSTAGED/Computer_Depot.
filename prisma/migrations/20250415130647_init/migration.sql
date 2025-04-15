@@ -11,6 +11,7 @@ CREATE TABLE `User` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `role` ENUM('ADMIN', 'USER') NOT NULL DEFAULT 'USER',
+    `notf_number` INTEGER NOT NULL DEFAULT 0,
 
     UNIQUE INDEX `User_username_key`(`username`),
     UNIQUE INDEX `User_email_key`(`email`),
@@ -77,8 +78,9 @@ CREATE TABLE `Product` (
     `title` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
+    `amount` INTEGER NOT NULL DEFAULT 1,
     `categoryID` INTEGER NOT NULL,
-    `imageURL` VARCHAR(191) NOT NULL,
+    `imageURL` VARCHAR(191) NULL,
     `isSold` BOOLEAN NOT NULL DEFAULT false,
     `publishingDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `userID` INTEGER NOT NULL,
@@ -95,6 +97,7 @@ CREATE TABLE `TradeHistory` (
     `sellerID` INTEGER NOT NULL,
     `productID` INTEGER NOT NULL,
     `price` DOUBLE NOT NULL,
+    `amount` INTEGER NOT NULL DEFAULT 1,
     `sellingDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `TradeHistory_buyerID_sellerID_idx`(`buyerID`, `sellerID`),

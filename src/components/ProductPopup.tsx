@@ -1,5 +1,6 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
 
 interface Product {
   title: string;
@@ -21,30 +22,56 @@ interface ProductPopupProps {
 }
 
 const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isPurchasing }) => {
+  const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const { data: session } = useSession();
+
   // Sepete ekleme fonksiyonu
-  const handleAddToCart = () => {
-    if (typeof window !== 'undefined') {
-      // Mevcut sepeti al
-      const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+  const handleAddToCart = async () => {
+    if (!session) {
+      setMessage({ text: 'You need to be logged in to add items to cart', type: 'error' });
+      return;
+    }
+
+    try {
+      setIsAddingToCart(true);
       
-      // Ürün zaten sepette mi kontrol et
-      const isAlreadyInCart = cartItems.some((item: any) => item.productID === product.productID);
-      
-      if (!isAlreadyInCart) {
-        // Ürünü sepete ekle
-        cartItems.push({
-          productID: product.productID,
-          title: product.title,
-          price: product.price,
-          imageURL: product.imageURL
-        });
-        
-        // Sepeti güncelle
-        localStorage.setItem('cartItems', JSON.stringify(cartItems));
-        
-        // Storage event'ini manuel olarak tetikle (aynı pencerede çalışması için)
-        window.dispatchEvent(new Event('storage'));
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId: product.productID,
+          quantity: quantity
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add to cart');
       }
+
+      setMessage({ text: 'Added to cart successfully', type: 'success' });
+      
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      setMessage({ 
+        text: error instanceof Error ? error.message : 'Failed to add to cart', 
+        type: 'error' 
+      });
+      
+      // Clear message after 3 seconds
+      setTimeout(() => {
+        setMessage(null);
+      }, 3000);
+    } finally {
+      setIsAddingToCart(false);
     }
   };
 
@@ -59,6 +86,12 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
+        
+        {message && (
+          <div className={`mb-4 p-3 rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {message.text}
+          </div>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="relative h-64 md:h-80">
@@ -80,12 +113,29 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
             <p className="text-gray-600">Amount: {product.amount}</p>
             <p className="text-gray-600">Category: {product.category.name}</p>
             
+            <div className="flex items-center space-x-2">
+              <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
+              <select
+                id="quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="border rounded-md px-2 py-1"
+              >
+                {[...Array(product.amount)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
             <div className="flex space-x-2">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
+                disabled={isAddingToCart}
+                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
               >
-                Add to Cart
+                {isAddingToCart ? "Adding..." : "Add to Cart"}
               </button>
               
               <button

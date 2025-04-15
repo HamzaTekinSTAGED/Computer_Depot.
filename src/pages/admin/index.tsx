@@ -46,15 +46,24 @@ const AdminDashboard = () => {
             <p className="text-gray-600">Manage categories</p>
           </button>
 
-          
+          <button 
+            onClick={() => router.push('/admin/products')}
+            className="w-full text-left bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
+          >
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-4">Products</h2>
             <p className="text-gray-600">View and manage all products</p>
           </div>
+          </button>
+          <button 
+            onClick={() => router.push('/admin/users')}
+            className="w-full text-left bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
+          >
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-4">Users</h2>
             <p className="text-gray-600">View and manage all users</p>
           </div>
+          </button>
         </div>
       </main>
 

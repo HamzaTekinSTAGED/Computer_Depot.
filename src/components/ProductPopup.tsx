@@ -115,18 +115,34 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
 
             <div className="flex items-center space-x-2">
               <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
-              <select
-                id="quantity"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                className="border rounded-md px-2 py-1"
-              >
-                {[...Array(product.amount)].map((_, i) => (
-                  <option key={i + 1} value={i + 1}>
-                    {i + 1}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center border rounded-md">
+                <button
+                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                  className="px-3 py-1 hover:bg-gray-100"
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  id="quantity"
+                  value={quantity}
+                  onChange={(e) => {
+                    const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
+                    setQuantity(value);
+                  }}
+                  min="1"
+                  max={product.amount}
+                  className="w-16 text-center border-x px-2 py-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <button
+                  onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
+                  className="px-3 py-1 hover:bg-gray-100"
+                  disabled={quantity >= product.amount}
+                >
+                  +
+                </button>
+              </div>
             </div>
 
             <div className="flex space-x-2">

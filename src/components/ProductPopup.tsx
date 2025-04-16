@@ -137,14 +137,6 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
               >
                 {isAddingToCart ? "Adding..." : "Add to Cart"}
               </button>
-
-              <button
-                onClick={() => onPurchase(product.productID)}
-                disabled={isPurchasing}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
-              >
-                {isPurchasing ? "Purchasing..." : "Buy Now"}
-              </button>
             </div>
           </div>
         </div>

@@ -10,7 +10,7 @@ interface Product {
   category: {
     name: string;
   };
-  imageURL: string;
+  imageURL: string | null;
   productID: number;
 }
 
@@ -19,9 +19,10 @@ interface ProductPopupProps {
   onClose: () => void;
   onPurchase: (productId: number) => void;
   isPurchasing: boolean;
+  isOwner?: boolean;
 }
 
-const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isPurchasing }) => {
+const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isPurchasing, isOwner = false }) => {
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -113,47 +114,51 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isP
             <p className="text-gray-600">Quantity: {product.amount}</p>
             <p className="text-gray-600">Category: {product.category.name}</p>
 
-            <div className="flex items-center space-x-2">
-              <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
-              <div className="flex items-center border rounded-md">
+            {!isOwner && (
+              <div className="flex items-center space-x-2">
+                <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
+                <div className="flex items-center border rounded-md">
+                  <button
+                    onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                    className="px-3 py-1 hover:bg-gray-100"
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    id="quantity"
+                    value={quantity}
+                    onChange={(e) => {
+                      const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
+                      setQuantity(value);
+                    }}
+                    min="1"
+                    max={product.amount}
+                    className="w-16 text-center border-x px-2 py-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <button
+                    onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
+                    className="px-3 py-1 hover:bg-gray-100"
+                    disabled={quantity >= product.amount}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {!isOwner && (
+              <div className="flex space-x-2">
                 <button
-                  onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                  className="px-3 py-1 hover:bg-gray-100"
-                  disabled={quantity <= 1}
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart}
+                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
                 >
-                  -
-                </button>
-                <input
-                  type="number"
-                  id="quantity"
-                  value={quantity}
-                  onChange={(e) => {
-                    const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
-                    setQuantity(value);
-                  }}
-                  min="1"
-                  max={product.amount}
-                  className="w-16 text-center border-x px-2 py-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <button
-                  onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
-                  className="px-3 py-1 hover:bg-gray-100"
-                  disabled={quantity >= product.amount}
-                >
-                  +
+                  {isAddingToCart ? "Adding..." : "Add to Cart"}
                 </button>
               </div>
-            </div>
-
-            <div className="flex space-x-2">
-              <button
-                onClick={handleAddToCart}
-                disabled={isAddingToCart}
-                className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
-              >
-                {isAddingToCart ? "Adding..." : "Add to Cart"}
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>

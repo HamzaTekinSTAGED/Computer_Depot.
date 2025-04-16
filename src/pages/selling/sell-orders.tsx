@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
+import ProductPopup from "../../components/ProductPopup";
 
 interface Product {
   productID: number;
@@ -26,6 +27,7 @@ export default function SellOrdersPage() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -53,6 +55,14 @@ export default function SellOrdersPage() {
     fetchProducts();
   }, [session]);
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleClosePopup = () => {
+    setSelectedProduct(null);
+  };
+
   if (status === "loading" || loading) {
     return <div>Loading...</div>;
   }
@@ -70,7 +80,11 @@ export default function SellOrdersPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
-                <div key={product.productID} className="bg-white rounded-xl shadow-md overflow-hidden">
+                <div 
+                  key={product.productID} 
+                  className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handleProductClick(product)}
+                >
                   {product.imageURL && (
                     <div className="h-48 w-full overflow-hidden">
                       <img
@@ -94,6 +108,16 @@ export default function SellOrdersPage() {
         </div>
       </div>
       {session && <UserInfo session={session} />}
+      
+      {selectedProduct && (
+        <ProductPopup
+          product={selectedProduct}
+          onClose={handleClosePopup}
+          onPurchase={() => {}}
+          isPurchasing={false}
+          isOwner={true}
+        />
+      )}
     </div>
   );
 }

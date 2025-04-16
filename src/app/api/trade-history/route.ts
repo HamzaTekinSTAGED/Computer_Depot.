@@ -75,12 +75,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { productId } = await request.json();
+    const { productId, amount = 1 } = await request.json();
 
     // Get the product details using raw query
     const products = await db.$queryRaw<RawProduct[]>`
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
 
     // Create transaction to update product and create trade history
     const result = await db.$transaction([
-      db.$executeRaw`UPDATE Product SET amount = amount - 1 WHERE productID = ${productId}`,
+      db.$executeRaw`UPDATE Product SET amount = amount - ${amount} WHERE productID = ${productId}`,
       db.$executeRaw`UPDATE Product SET isSold = true WHERE productID = ${productId} AND amount = 0`,
       db.tradeHistory.create({
         data: {
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
           sellerID: product.userID,
           productID: productId,
           price: product.price,
-          amount: 1,
+          amount: amount,
         },
         include: {
           buyer: {

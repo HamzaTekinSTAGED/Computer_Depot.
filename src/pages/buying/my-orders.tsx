@@ -84,7 +84,13 @@ export default function MyOrders() {
                 Purchased Amount: {trade.amount}
               </p>
               <p className="text-gray-500 text-sm">
-                Date: {new Date(trade.sellingDate).toLocaleDateString()}
+                Date: {new Date(trade.sellingDate).toLocaleDateString('tr-TR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </p>
             </div>
           </div>

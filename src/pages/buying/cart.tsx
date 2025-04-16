@@ -86,18 +86,20 @@ export default function CartPage() {
         setPurchaseSuccess(false);
         try {
             for (const item of cartItems) {
-                // Her bir ürün için trade-history'ye ekle
-                for (let i = 0; i < item.added_amount; i++) {
-                    const tradeRes = await fetch("/api/trade-history", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ productId: item.product_id }),
-                    });
-                    if (!tradeRes.ok) {
-                        const err = await tradeRes.json();
-                        throw new Error(err.error || "Purchase failed.");
-                    }
+                // Her bir ürün için tek bir trade-history kaydı oluştur
+                const tradeRes = await fetch("/api/trade-history", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        productId: item.product_id,
+                        amount: item.added_amount
+                    }),
+                });
+                if (!tradeRes.ok) {
+                    const err = await tradeRes.json();
+                    throw new Error(err.error || "Purchase failed.");
                 }
+
                 // Sepetten sil
                 const deleteRes = await fetch("/api/cart", {
                     method: "DELETE",

@@ -35,15 +35,5 @@ class Database {
   }
 }
 
-// Global instance for development
-declare global {
-  var db: Database | undefined;
-}
-
-const database = global.db || Database.getInstance();
-
-if (process.env.NODE_ENV !== "production") {
-  global.db = database;
-}
-
+const database = Database.getInstance();
 export const db = database.prisma; 

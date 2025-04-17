@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
+import Image from "next/image";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 
 interface Category {
@@ -190,7 +191,15 @@ export default function SellPage() {
               <div className="flex flex-col items-center space-y-4">
                 <label htmlFor="image-upload" className="w-80 h-80 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        fill
+                        className="object-contain rounded-lg"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
                   ) : (
                     <span className="text-gray-500">Click to upload image</span>
                   )}

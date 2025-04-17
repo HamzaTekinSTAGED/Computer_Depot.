@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   useAuthCheck(status, setIsLoading);
 
@@ -86,9 +86,9 @@ export default function RegisterPage() {
       } else {
         router.push("/hero");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setIsLoading(false);
-      setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      setError(err instanceof Error ? err.message : 'Bir hata oluştu. Lütfen tekrar deneyin.');
       console.error('Kayıt hatası:', err);
     }
   };

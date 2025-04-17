@@ -47,7 +47,7 @@ export async function POST(req: Request) {
       { success: true, message: "Şifre başarıyla güncellendi" },
       { status: 200 }
     );
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Şifre sıfırlanırken bir hata oluştu" },
       { status: 200 }

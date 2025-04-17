@@ -5,6 +5,7 @@ import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
 import ProductPopup from "../../components/ProductPopup";
+import Image from "next/image";
 
 interface Product {
   title: string;
@@ -170,7 +171,15 @@ export default function ProductList() {
                   onClick={() => handleProductClick(product)}
                 >
                   {product.imageURL && (
-                    <img src={product.imageURL} alt={product.title} className="w-full h-48 object-cover" />
+                    <div className="relative w-full h-48">
+                      <Image
+                        src={product.imageURL}
+                        alt={product.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
                   )}
                   <div className="p-6">
                     <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>

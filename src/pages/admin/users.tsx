@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../../components/sidebar';
 import UserInfo from '../../components/UserInfo';
-import { FiSearch, FiUser, FiMail } from 'react-icons/fi';
+import { FiUser, FiMail } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
 interface User {
@@ -15,7 +15,7 @@ interface User {
   surname: string;
   email: string;
   role: 'ADMIN' | 'USER';
-  products: any[];
+  products: unknown[];
 }
 
 export default function UsersPage() {

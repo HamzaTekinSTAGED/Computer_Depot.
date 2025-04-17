@@ -28,35 +28,13 @@ interface TradeHistory {
   amount: number;
 }
 
-export default function MyOrders() {
+const MyOrdersPage = () => {
   const { data: session } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [tradeHistory, setTradeHistory] = useState<TradeHistory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTradeHistory = async () => {
-      if (!session?.user?.id) return;
-
-      try {
-        setIsLoading(true);
-        const res = await fetch(`/api/trade-history?buyerId=${session.user.id}`);
-        if (!res.ok) {
-          throw new Error("Trade history could not be fetched.");
-        }
-        const data = await res.json();
-        setTradeHistory(data);
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchTradeHistory();
-  }, [session?.user?.id]);
-
-  const TradeItem = useMemo(() => ({ trade }: { trade: TradeHistory }) => (
+  const TradeItem = ({ trade }: { trade: TradeHistory }) => (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200">
       <div className="p-6">
         <div className="flex items-center space-x-4">
@@ -97,7 +75,33 @@ export default function MyOrders() {
         </div>
       </div>
     </div>
-  ), []);
+  );
+
+  TradeItem.displayName = 'TradeItem';
+
+  const MemoizedTradeItem = useMemo(() => TradeItem, []);
+
+  useEffect(() => {
+    const fetchTradeHistory = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        setIsLoading(true);
+        const res = await fetch(`/api/trade-history?buyerId=${session.user.id}`);
+        if (!res.ok) {
+          throw new Error("Trade history could not be fetched.");
+        }
+        const data = await res.json();
+        setTradeHistory(data);
+      } catch (error) {
+        console.error("Error:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTradeHistory();
+  }, [session?.user?.id]);
 
   return (
     <div className="flex h-screen relative">
@@ -114,7 +118,7 @@ export default function MyOrders() {
               </div>
             ) : tradeHistory.length > 0 ? (
               tradeHistory.map((trade) => (
-                <TradeItem key={trade.id} trade={trade} />
+                <MemoizedTradeItem key={trade.id} trade={trade} />
               ))
             ) : (
               <p className="text-center text-gray-500">
@@ -127,4 +131,8 @@ export default function MyOrders() {
       {session && <UserInfo session={session} />}
     </div>
   );
-}
+};
+
+MyOrdersPage.displayName = 'MyOrdersPage';
+
+export default MyOrdersPage;

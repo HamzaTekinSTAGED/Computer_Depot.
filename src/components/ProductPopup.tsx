@@ -17,12 +17,12 @@ interface Product {
 interface ProductPopupProps {
   product: Product;
   onClose: () => void;
-  onPurchase: (productId: number) => void;
+  onPurchase: (productId: number) => Promise<void>;
   isPurchasing: boolean;
   isOwner?: boolean;
 }
 
-const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, onPurchase, isPurchasing, isOwner = false }) => {
+const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, isOwner = false }) => {
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);

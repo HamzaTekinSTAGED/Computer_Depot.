@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import bcrypt from "bcrypt";
 import { BackgroundPaths } from "../../components/background-paths";
 
 export default function PasswordChangePage() {

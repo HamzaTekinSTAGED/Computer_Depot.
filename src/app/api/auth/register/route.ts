@@ -53,7 +53,17 @@ export async function POST(req: Request) {
     });
 
     // Hassas bilgileri hariç tut
-    const { password: _, ...userWithoutPassword } = user;
+    const userWithoutPassword = {
+      userID: user.userID,
+      name: user.name,
+      surname: user.surname,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      role: user.role,
+      notf_number: user.notf_number
+    };
 
     return NextResponse.json(
       {

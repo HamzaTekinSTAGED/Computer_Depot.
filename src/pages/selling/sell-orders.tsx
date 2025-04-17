@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import ProductPopup from "../../components/ProductPopup";
+import Image from "next/image";
 
 interface Product {
   productID: number;
@@ -86,11 +87,13 @@ export default function SellOrdersPage() {
                   onClick={() => handleProductClick(product)}
                 >
                   {product.imageURL && (
-                    <div className="h-48 w-full overflow-hidden">
-                      <img
+                    <div className="h-48 w-full overflow-hidden relative">
+                      <Image
                         src={product.imageURL}
                         alt={product.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
                   )}
@@ -113,7 +116,10 @@ export default function SellOrdersPage() {
         <ProductPopup
           product={selectedProduct}
           onClose={handleClosePopup}
-          onPurchase={() => {}}
+          onPurchase={async () => {
+            // Since this is the sell orders page, we don't need to implement purchase functionality
+            return Promise.resolve();
+          }}
           isPurchasing={false}
           isOwner={true}
         />

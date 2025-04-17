@@ -81,8 +81,8 @@ export default function ForgotPasswordPage() {
       } else {
         throw new Error(data.error || 'Şifre sıfırlama işlemi başarısız oldu.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Bir hata oluştu. Lütfen tekrar deneyin.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Bir hata oluştu. Lütfen tekrar deneyin.');
       console.error('Şifre sıfırlama hatası:', err);
     } finally {
       setIsLoading(false);

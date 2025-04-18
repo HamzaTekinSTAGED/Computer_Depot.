@@ -121,5 +121,10 @@ export const authOptions: AuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
+// Validate that NEXTAUTH_SECRET is set
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("NEXTAUTH_SECRET is not set in environment variables");
+}
+
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST }; 

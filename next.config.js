@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['res.cloudinary.com'],
+    domains: ['res.cloudinary.com', 'cdn.imagin.studio'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -9,6 +9,10 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  env: {
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
 }
 

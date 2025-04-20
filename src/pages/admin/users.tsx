@@ -5,18 +5,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../../components/sidebar';
 import UserInfo from '../../components/UserInfo';
-import { FiUser, FiMail } from 'react-icons/fi';
+import { FiUser, FiMail, FiEdit2 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-
-interface User {
-  userID: number;
-  username: string;
-  name: string;
-  surname: string;
-  email: string;
-  role: 'ADMIN' | 'USER';
-  products: unknown[];
-}
+import { EditUserModal, editUser } from '../../utils/editUser';
+import { User } from '../../types/user';
 
 export default function UsersPage() {
   const router = useRouter();
@@ -27,6 +19,8 @@ export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -75,6 +69,26 @@ export default function UsersPage() {
 
   const handleSidebarExpand = (expanded: boolean) => {
     setIsSidebarExpanded(expanded);
+  };
+
+  const handleEditUser = async (updatedUser: Partial<User>) => {
+    if (!selectedUser) return;
+    
+    try {
+      await editUser({ ...selectedUser, ...updatedUser }, async (user) => {
+        // Update the users list with the new data
+        setUsers(prevUsers => 
+          prevUsers.map(u => u.userID === user.userID ? { ...u, ...user } : u)
+        );
+        setFilteredUsers(prevUsers => 
+          prevUsers.map(u => u.userID === user.userID ? { ...u, ...user } : u)
+        );
+        setIsModalOpen(false);
+        setSelectedUser(null);
+      });
+    } catch (error) {
+      setError('Failed to update user. Please try again.');
+    }
   };
 
   return (
@@ -133,12 +147,15 @@ export default function UsersPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Product Count
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-4 text-center">
+                      <td colSpan={5} className="px-6 py-4 text-center">
                         <div className="flex justify-center">
                           <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
                         </div>
@@ -182,11 +199,23 @@ export default function UsersPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {user.products?.length || 0}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setIsModalOpen(true);
+                            }}
+                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          >
+                            <FiEdit2 className="h-4 w-4 mr-1" />
+                            Edit
+                          </button>
+                        </td>
                       </motion.tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                      <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
                         {searchTerm ? 'No users found matching search criteria' : 'No users found'}
                       </td>
                     </tr>
@@ -197,6 +226,19 @@ export default function UsersPage() {
           </div>
         </div>
       </main>
+
+      {/* Edit User Modal */}
+      {selectedUser && (
+        <EditUserModal
+          user={selectedUser}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedUser(null);
+          }}
+          onSave={handleEditUser}
+        />
+      )}
 
       {/* User Info */}
       {session && <UserInfo session={session} />}

@@ -12,6 +12,7 @@ export async function GET() {
         name: true,
         surname: true,
         email: true,
+        role: true,
         products: true,
       },
     });

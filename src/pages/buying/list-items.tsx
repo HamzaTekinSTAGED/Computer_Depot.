@@ -16,6 +16,7 @@ interface Product {
   imageURL: string;
   price: number;
   amount: number;
+  maxBuyAmount: number;
   isSold: boolean;
   userID: number;
   productID: number;

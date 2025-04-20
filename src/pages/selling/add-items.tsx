@@ -25,6 +25,7 @@ export default function SellPage() {
     description: "", 
     price: "", 
     amount: "1",
+    maxBuyAmount: "1",
     categoryID: "",
     imageURL: ""
   });
@@ -59,7 +60,30 @@ export default function SellPage() {
     // Input sanitization
     const sanitizedValue = value.replace(/[<>]/g, '');
     
-    setItem(prev => ({ ...prev, [name]: sanitizedValue }));
+    setItem(prev => {
+      const newItem = { ...prev, [name]: sanitizedValue };
+      
+      // If amount is changed, check and adjust maxBuyAmount if needed
+      if (name === 'amount') {
+        const amount = parseInt(sanitizedValue) || 0;
+        const maxBuyAmount = parseInt(newItem.maxBuyAmount) || 0;
+        if (maxBuyAmount > amount) {
+          newItem.maxBuyAmount = amount.toString();
+        }
+      }
+      
+      // If maxBuyAmount is changed, ensure it's not greater than amount
+      if (name === 'maxBuyAmount') {
+        const amount = parseInt(newItem.amount) || 0;
+        const maxBuyAmount = parseInt(sanitizedValue) || 0;
+        if (maxBuyAmount > amount) {
+          newItem.maxBuyAmount = amount.toString();
+        }
+      }
+      
+      return newItem;
+    });
+    
     setError(null);
   };
 
@@ -137,11 +161,20 @@ export default function SellPage() {
         return;
       }
 
+      // Max Buy Amount validation
+      const maxBuyAmount = parseInt(item.maxBuyAmount);
+      if (isNaN(maxBuyAmount) || maxBuyAmount <= 0 || maxBuyAmount > amount) {
+        setError("Max buy amount must be at least 1 and cannot exceed the total amount");
+        setIsSubmitting(false);
+        return;
+      }
+
       const productData = {
         title: item.title,
         description: item.description,
         price: price,
         amount: amount,
+        maxBuyAmount: maxBuyAmount,
         category: item.categoryID,
         imageURL: item.imageURL || null,
         userID: parseInt(session.user.id),
@@ -241,17 +274,30 @@ export default function SellPage() {
                   step="0.01"
                   className="w-full p-4 border rounded-lg text-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                 />
-                <input 
-                  name="amount" 
-                  type="number" 
-                  placeholder="Amount" 
-                  value={item.amount} 
-                  onChange={handleChange} 
-                  required 
-                  min="1"
-                  max="9999"
-                  className="w-full p-4 border rounded-lg text-xl" 
-                />
+                <div className="flex space-x-4">
+                  <input 
+                    name="amount" 
+                    type="number" 
+                    placeholder="Amount" 
+                    value={item.amount} 
+                    onChange={handleChange} 
+                    required 
+                    min="1"
+                    max="9999"
+                    className="w-1/2 p-4 border rounded-lg text-xl" 
+                  />
+                  <input 
+                    name="maxBuyAmount" 
+                    type="number" 
+                    placeholder="Max Buy Amount" 
+                    value={item.maxBuyAmount} 
+                    onChange={handleChange} 
+                    required 
+                    min="1"
+                    max={item.amount || "9999"}
+                    className="w-1/2 p-4 border rounded-lg text-xl" 
+                  />
+                </div>
                 <select name="categoryID" value={item.categoryID} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl">
                   <option value="">Select Category</option>
                   {categories.map((category) => (

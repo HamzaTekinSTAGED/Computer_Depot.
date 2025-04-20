@@ -7,6 +7,7 @@ interface Product {
   description: string;
   price: number;
   amount: number;
+  maxBuyAmount: number;
   category: {
     name: string;
   };
@@ -28,6 +29,9 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, isOwner = false
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const { data: session } = useSession();
 
+  // Calculate the maximum allowed quantity
+  const maxAllowedQuantity = Math.min(product.amount, product.maxBuyAmount);
+
   // Sepete ekleme fonksiyonu
   const handleAddToCart = async () => {
     if (!session) {
@@ -37,6 +41,7 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, isOwner = false
 
     try {
       setIsAddingToCart(true);
+      setMessage(null); // Clear any existing messages
 
       const response = await fetch('/api/cart', {
         method: 'POST',
@@ -49,28 +54,32 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, isOwner = false
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add to cart');
+        setMessage({ 
+          text: data.error || 'Failed to add to cart', 
+          type: 'error' 
+        });
+        return;
       }
 
-      setMessage({ text: 'Product added to cart', type: 'success' });
+      setMessage({ 
+        text: 'Product added to cart successfully', 
+        type: 'success' 
+      });
 
-      // Mesajı 3 saniye sonra temizle
+      // Close the popup after 2 seconds on success
       setTimeout(() => {
         setMessage(null);
-      }, 3000);
+        onClose();
+      }, 2000);
     } catch (error) {
       console.error('Sepete ekleme hatası:', error);
       setMessage({
         text: error instanceof Error ? error.message : 'Failed to add to cart',
         type: 'error'
       });
-
-      // Mesajı 3 saniye sonra temizle
-      setTimeout(() => {
-        setMessage(null);
-      }, 3000);
     } finally {
       setIsAddingToCart(false);
     }
@@ -130,21 +139,24 @@ const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, isOwner = false
                     id="quantity"
                     value={quantity}
                     onChange={(e) => {
-                      const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
+                      const value = Math.max(1, Math.min(maxAllowedQuantity, Number(e.target.value)));
                       setQuantity(value);
                     }}
                     min="1"
-                    max={product.amount}
+                    max={maxAllowedQuantity}
                     className="w-16 text-center border-x px-2 py-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
-                    onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
+                    onClick={() => setQuantity(prev => Math.min(maxAllowedQuantity, prev + 1))}
                     className="px-3 py-1 hover:bg-gray-100"
-                    disabled={quantity >= product.amount}
+                    disabled={quantity >= maxAllowedQuantity}
                   >
                     +
                   </button>
                 </div>
+                <span className="text-sm text-gray-500">
+                  (Max: {maxAllowedQuantity})
+                </span>
               </div>
             )}
 

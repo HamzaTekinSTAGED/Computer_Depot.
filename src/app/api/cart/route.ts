@@ -58,6 +58,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
+    // Check if the requested quantity exceeds maxBuyAmount
+    if (quantity > product.maxBuyAmount) {
+      return NextResponse.json({ 
+        error: `Cannot add more than ${product.maxBuyAmount} items at once. Please adjust your quantity.` 
+      }, { status: 400 });
+    }
+
     if (product.amount < quantity) {
       return NextResponse.json({ error: 'Not enough product available' }, { status: 400 });
     }
@@ -71,13 +78,21 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingCartItem) {
+      // Check if adding the new quantity would exceed maxBuyAmount
+      const newTotalQuantity = existingCartItem.added_amount + quantity;
+      if (newTotalQuantity > product.maxBuyAmount) {
+        return NextResponse.json({ 
+          error: `Cannot add more than ${product.maxBuyAmount} items at once. You already have ${existingCartItem.added_amount} in your cart.` 
+        }, { status: 400 });
+      }
+
       // Update the quantity
       const updatedCartItem = await prisma.cart.update({
         where: {
           id: existingCartItem.id
         },
         data: {
-          added_amount: existingCartItem.added_amount + quantity
+          added_amount: newTotalQuantity
         }
       });
 

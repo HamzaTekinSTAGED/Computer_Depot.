@@ -94,6 +94,7 @@ model Product {
   description    String
   price          Float
   amount         Int       @default(1)
+  maxBuyAmount   Int       @default(1) @db.UnsignedInt
   categoryID     Int
   category       Category  @relation(fields: [categoryID], references: [categoryID])
   imageURL       String?

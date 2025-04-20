@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
+import EditProductModal from "../../components/EditProductModal";
 
 // Define types based on Prisma schema
 type Product = {
@@ -39,6 +40,8 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
   // Fetch products and categories on component mount
   useEffect(() => {
@@ -89,6 +92,48 @@ const ProductsPage = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  };
+
+  // Function to open the modal
+  const openEditModal = (productId: number) => {
+    setEditingProductId(productId);
+    setIsModalOpen(true);
+  };
+
+  // Function to close the modal
+  const closeEditModal = () => {
+    setEditingProductId(null);
+    setIsModalOpen(false);
+    fetchData();
+  };
+
+  // Define fetchData here or ensure it's accessible if defined elsewhere
+  // Example: (ensure this function exists and is compatible)
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const productsResponse = await fetch("/api/products");
+      if (!productsResponse.ok) {
+        throw new Error(`Failed to fetch products: ${productsResponse.status}`);
+      }
+      const productsData = await productsResponse.json();
+      setProducts(productsData);
+
+      // Maybe re-fetch categories too if they can change, otherwise remove
+      const categoriesResponse = await fetch("/api/categories");
+      if (!categoriesResponse.ok) {
+        throw new Error(`Failed to fetch categories: ${categoriesResponse.status}`);
+      }
+      const categoriesData = await categoriesResponse.json();
+      setCategories(categoriesData);
+
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError(error instanceof Error ? error.message : "An unknown error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (status === "loading" || loading) {
@@ -187,6 +232,9 @@ const ProductsPage = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Date
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -222,11 +270,19 @@ const ProductsPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(product.publishingDate.toString())}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => openEditModal(product.productID)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            Edit
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
+                      <td colSpan={8} className="px-6 py-4 text-center text-sm text-gray-500">
                         No products found.
                       </td>
                     </tr>
@@ -240,6 +296,15 @@ const ProductsPage = () => {
 
       {/* User Info */}
       {session && <UserInfo session={session} />}
+
+      {/* Edit Product Modal */}
+      {isModalOpen && editingProductId && (
+        <EditProductModal 
+          productId={editingProductId}
+          onClose={closeEditModal}
+          onSave={fetchData}
+        />
+      )}
     </div>
   );
 };

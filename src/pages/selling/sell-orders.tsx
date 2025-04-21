@@ -14,6 +14,7 @@ interface Product {
   description: string;
   price: number;
   amount: number;
+  maxBuyAmount: number;
   categoryID: number;
   category: {
     name: string;

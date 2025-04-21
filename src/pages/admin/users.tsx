@@ -7,7 +7,8 @@ import Sidebar from '../../components/sidebar';
 import UserInfo from '../../components/UserInfo';
 import { FiUser, FiMail, FiEdit2 } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import { EditUserModal, editUser } from '../../utils/editUser';
+import { EditUserModal } from '../../components/EditUserModal';
+import { editUser } from '../../utils/editUser';
 import { User } from '../../types/user';
 
 export default function UsersPage() {

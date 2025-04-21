@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Product` ADD COLUMN `maxBuyAmount` INTEGER NOT NULL DEFAULT 1;

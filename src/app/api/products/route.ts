@@ -37,12 +37,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, price, amount, category, imageURL, userID } = body;
+    const { title, description, price, amount, maxBuyAmount, category, imageURL, userID } = body;
 
     // Validate required fields
-    if (!title || !description || !price || !category || !userID || !amount) {
+    if (!title || !description || !price || !category || !userID || !amount || !maxBuyAmount) {
       return NextResponse.json(
-        { error: 'Title, description, price, amount and category fields are required' },
+        { error: 'Title, description, price, amount, maxBuyAmount and category fields are required' },
         { status: 400 }
       );
     }
@@ -63,12 +63,21 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate maxBuyAmount
+    if (isNaN(maxBuyAmount) || maxBuyAmount <= 0 || maxBuyAmount > amount) {
+      return NextResponse.json(
+        { error: 'Max buy amount must be at least 1 and cannot exceed the total amount' },
+        { status: 400 }
+      );
+    }
+
     const product = await db.product.create({
       data: {
         title,
         description,
         price: parseFloat(price),
         amount: parseInt(amount),
+        maxBuyAmount: parseInt(maxBuyAmount),
         categoryID: parseInt(category),
         imageURL: imageURL || "",
         userID: parseInt(userID),

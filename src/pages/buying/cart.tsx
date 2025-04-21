@@ -17,6 +17,8 @@ interface CartItem {
         title: string;
         imageURL: string | null;
         description: string;
+        maxBuyAmount: number;
+        amount: number;
     };
 }
 
@@ -29,6 +31,7 @@ export default function CartPage() {
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [purchaseError, setPurchaseError] = useState<string | null>(null);
     const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+    const [isUpdatingQuantity, setIsUpdatingQuantity] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -73,6 +76,36 @@ export default function CartPage() {
             alert(error instanceof Error ? error.message : "An error occurred");
         } finally {
             setIsDeleting(null);
+        }
+    };
+
+    const handleUpdateQuantity = async (cartItemId: number, newQuantity: number) => {
+        try {
+            setIsUpdatingQuantity(cartItemId);
+            const response = await fetch("/api/cart", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ cartItemId, quantity: newQuantity }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || "Failed to update quantity");
+            }
+
+            // Update the local state
+            setCartItems(cartItems.map(item => 
+                item.id === cartItemId 
+                    ? { ...item, added_amount: newQuantity }
+                    : item
+            ));
+        } catch (error) {
+            console.error("Update quantity error:", error);
+            alert(error instanceof Error ? error.message : "An error occurred");
+        } finally {
+            setIsUpdatingQuantity(null);
         }
     };
 
@@ -157,7 +190,29 @@ export default function CartPage() {
                                         <h3 className="text-lg font-semibold">{item.product.title}</h3>
                                         <p className="text-gray-600">{item.product.description}</p>
                                         <p className="text-gray-600">Birim Fiyat: ${item.priceforoneItem}</p>
-                                        <p className="text-gray-600">Adet: {item.added_amount}</p>
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-gray-600">Adet:</span>
+                                            <div className="flex items-center border rounded-md">
+                                                <button
+                                                    onClick={() => handleUpdateQuantity(item.id, item.added_amount - 1)}
+                                                    disabled={isUpdatingQuantity === item.id || item.added_amount <= 1}
+                                                    className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
+                                                >
+                                                    -
+                                                </button>
+                                                <span className="px-3 py-1">{item.added_amount}</span>
+                                                <button
+                                                    onClick={() => handleUpdateQuantity(item.id, item.added_amount + 1)}
+                                                    disabled={isUpdatingQuantity === item.id || item.added_amount >= Math.min(item.product.maxBuyAmount, item.product.amount)}
+                                                    className="px-3 py-1 hover:bg-gray-100 disabled:opacity-50"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+                                            <span className="text-sm text-gray-500">
+                                                (Max: {Math.min(item.product.maxBuyAmount, item.product.amount)})
+                                            </span>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <div className="text-lg font-semibold">

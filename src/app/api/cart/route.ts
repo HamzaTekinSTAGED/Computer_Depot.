@@ -146,3 +146,63 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to remove item from cart' }, { status: 500 });
   }
 }
+
+// PATCH method to update cart item quantity
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = Number(session.user.id);
+    const { cartItemId, quantity } = await request.json();
+
+    if (!cartItemId || !quantity) {
+      return NextResponse.json({ error: 'Cart item ID and quantity are required' }, { status: 400 });
+    }
+
+    // Get the cart item and its associated product
+    const cartItem = await prisma.cart.findFirst({
+      where: {
+        id: cartItemId,
+        user_id: userId
+      },
+      include: {
+        product: true
+      }
+    });
+
+    if (!cartItem) {
+      return NextResponse.json({ error: 'Cart item not found' }, { status: 404 });
+    }
+
+    // Check if the requested quantity exceeds maxBuyAmount
+    if (quantity > cartItem.product.maxBuyAmount) {
+      return NextResponse.json({ 
+        error: `Cannot add more than ${cartItem.product.maxBuyAmount} items at once.` 
+      }, { status: 400 });
+    }
+
+    // Check if there's enough product available
+    if (quantity > cartItem.product.amount) {
+      return NextResponse.json({ error: 'Not enough product available' }, { status: 400 });
+    }
+
+    // Update the cart item quantity
+    const updatedCartItem = await prisma.cart.update({
+      where: {
+        id: cartItemId
+      },
+      data: {
+        added_amount: quantity
+      }
+    });
+
+    return NextResponse.json(updatedCartItem);
+  } catch (error) {
+    console.error('Error updating cart item quantity:', error);
+    return NextResponse.json({ error: 'Failed to update cart item quantity' }, { status: 500 });
+  }
+}

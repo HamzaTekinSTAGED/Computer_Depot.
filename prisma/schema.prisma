@@ -34,6 +34,7 @@ model User {
   accounts        Account[]
   sessions        Session[]
   cart            Cart[]
+  comments        Comment[]
 }
 
 enum UserRole {
@@ -108,6 +109,7 @@ model Product {
   // TradeHistory ilişkisi
   tradeHistory TradeHistory[]
   cart         Cart[]
+  comments     Comment[]
 
   @@index([userID]) // Foreign key için index
   @@index([categoryID]) // Kategori aramaları için index
@@ -144,4 +146,26 @@ model Cart {
 
   @@index([user_id])
   @@index([product_id])
+}
+
+model Comment {
+  userId     Int
+  productId  Int
+  star       Int                 // Validation (1-5) should be handled at application level
+  comment    String?             @db.VarChar(200)
+  getLiked   Int                 @default(0)
+  photo      String?             @db.VarChar(255) // Assuming VARCHAR for path/URL
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  // Relations
+  user       User                @relation(fields: [userId], references: [userID], onDelete: Cascade) // Cascade delete comments if user is deleted
+  product    Product             @relation(fields: [productId], references: [productID], onDelete: Cascade) // Cascade delete comments if product is deleted
+
+  // Composite primary key to prevent multiple comments from the same user on the same product
+  @@id([userId, productId])
+
+  // Index for faster lookups
+  @@index([userId])
+  @@index([productId])
 }

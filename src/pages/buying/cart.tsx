@@ -133,6 +133,19 @@ export default function CartPage() {
                     throw new Error(err.error || "Purchase failed.");
                 }
 
+                // Ürün miktarını güncelle
+                const updateRes = await fetch("/api/products", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        productId: item.product_id,
+                        amount: item.added_amount
+                    }),
+                });
+                if (!updateRes.ok) {
+                    throw new Error("Failed to update product amount.");
+                }
+
                 // Sepetten sil
                 const deleteRes = await fetch("/api/cart", {
                     method: "DELETE",

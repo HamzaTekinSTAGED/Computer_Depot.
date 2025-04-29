@@ -131,7 +131,7 @@ export async function PATCH(request: Request) {
       where: { productID: productId },
       data: {
         amount: newAmount,
-        isSold: newAmount === 0 ? true : product.isSold,
+        isSold: false,
       },
     });
     return NextResponse.json(updated);

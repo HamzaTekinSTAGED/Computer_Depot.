@@ -6,6 +6,7 @@ import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
 import ProductPopup from "../../components/ProductPopup";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 interface Product {
   title: string;
@@ -38,6 +39,7 @@ export default function ProductList() {
   const [isPurchasing, setIsPurchasing] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -64,12 +66,12 @@ export default function ProductList() {
           throw new Error("Ürünler getirilemedi.");
         }
         const data = await res.json();
-        // Filter out sold products and current user's products
-        const unsoldProducts = data.filter((product: Product) => 
-          !product.isSold && product.userID !== Number(session?.user?.id)
+        // Filter out only current user's products, show all other products regardless of amount
+        const filteredProducts = data.filter((product: Product) => 
+          product.userID !== Number(session?.user?.id)
         );
-        setProducts(unsoldProducts);
-        setFilteredProducts(unsoldProducts);
+        setProducts(filteredProducts);
+        setFilteredProducts(filteredProducts);
       } catch (error) {
         console.error("Hata:", error);
       }
@@ -88,7 +90,7 @@ export default function ProductList() {
   }, [selectedCategoryId, products]);
 
   const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
+    router.push(`/buying/product/${product.productID}`);
   };
 
   const handleClosePopup = () => {

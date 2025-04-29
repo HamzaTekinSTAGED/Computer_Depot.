@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"; 
+import { db } from '@/lib/db';
 
 const prisma = new PrismaClient();
 
@@ -14,25 +15,21 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 
   try {
-    const product = await prisma.product.findUnique({
+    const product = await db.product.findUnique({
       where: { productID: parseInt(id) },
-      // Include category and user if needed, similar to the main products fetch
       include: {
-        category: true,
-        user: {
-          select: { username: true } // Only select necessary user fields
-        }
+        category: true
       }
     });
 
     if (!product) {
-      return NextResponse.json({ message: 'Product not found' }, { status: 404 });
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
 
     return NextResponse.json(product);
   } catch (error) {
     console.error('Error fetching product:', error);
-    return NextResponse.json({ message: 'Failed to fetch product' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
   }
 }
 

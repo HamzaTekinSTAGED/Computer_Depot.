@@ -1,6 +1,6 @@
 import RegisterPage from "@/pages/Authentication/register";
 
-export default async function Home() {
+export default function Home() {
   
   return (
     <main className="overflow-hidden">
@@ -8,4 +8,4 @@ export default async function Home() {
       
     </main>
   );
-}
+} 

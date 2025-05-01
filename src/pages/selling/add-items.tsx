@@ -7,6 +7,7 @@ import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import Image from "next/image";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
+import LoadingSpinner from "../../components/loading";
 
 interface Category {
   categoryID: number;
@@ -204,131 +205,133 @@ export default function SellPage() {
     }
   };
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="flex h-screen relative">
       <Sidebar onExpand={setIsSidebarExpanded} />
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
-        <div className="max-w-6xl mx-auto mt-10 p-8 bg-white shadow-xl rounded-xl">
-          <h2 className="text-2xl font-semibold mb-4">Add Product</h2>
-          {error && (
-            <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-              {error}
-            </div>
-          )}
-          <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
-            <div className="flex space-x-12">
-              <div className="flex flex-col items-center space-y-4">
-                <label htmlFor="image-upload" className="w-80 h-80 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative">
-                  {imagePreview ? (
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        fill
-                        className="object-contain rounded-lg"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-gray-500">Click to upload image</span>
+        {status === "loading" ? (
+          <div className="flex justify-center items-center h-full"> 
+            <LoadingSpinner />
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto mt-10 p-8 bg-white shadow-xl rounded-xl">
+            <h2 className="text-2xl font-semibold mb-4">Add Product</h2>
+            {error && (
+              <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
+              <div className="flex space-x-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <label htmlFor="image-upload" className="w-80 h-80 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer relative">
+                    {imagePreview ? (
+                      <div className="relative w-full h-full">
+                        <Image
+                          src={imagePreview}
+                          alt="Preview"
+                          fill
+                          className="object-contain rounded-lg"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">Click to upload image</span>
+                    )}
+                  </label>
+                  <input
+                    id="image-upload"
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="sr-only"
+                    aria-label="Upload image"
+                  />
+                  {imagePreview && (
+                    <button type="button" onClick={handleImageDelete} className="bg-red-500 text-white px-4 py-2 rounded-lg text-lg">
+                      Delete Image
+                    </button>
                   )}
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="sr-only"
-                  aria-label="Upload image"
-                />
-                {imagePreview && (
-                  <button type="button" onClick={handleImageDelete} className="bg-red-500 text-white px-4 py-2 rounded-lg text-lg">
-                    Delete Image
-                  </button>
-                )}
-              </div>
-              <div className="flex-1 space-y-8">
-                <input 
-                  name="title" 
-                  type="text" 
-                  placeholder="Product Title" 
-                  value={item.title} 
-                  onChange={handleChange} 
-                  required 
-                  maxLength={100}
-                  className="w-full p-4 border rounded-lg text-xl" 
-                />
-                <input 
-                  name="price" 
-                  type="number" 
-                  placeholder="Price ($)" 
-                  value={item.price} 
-                  onChange={handleChange} 
-                  required 
-                  min="0.01"
-                  step="0.01"
-                  className="w-full p-4 border rounded-lg text-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-                />
-                <div className="flex space-x-4">
-                  <input 
-                    name="amount" 
-                    type="number" 
-                    placeholder="Amount" 
-                    value={item.amount} 
-                    onChange={handleChange} 
-                    required 
-                    min="1"
-                    max="9999"
-                    className="w-1/2 p-4 border rounded-lg text-xl" 
-                  />
-                  <input 
-                    name="maxBuyAmount" 
-                    type="number" 
-                    placeholder="Max Buy Amount" 
-                    value={item.maxBuyAmount} 
-                    onChange={handleChange} 
-                    required 
-                    min="1"
-                    max={item.amount || "9999"}
-                    className="w-1/2 p-4 border rounded-lg text-xl" 
-                  />
                 </div>
-                <select name="categoryID" value={item.categoryID} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl">
-                  <option value="">Select Category</option>
-                  {categories.map((category) => (
-                    <option key={category.categoryID} value={category.categoryID}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex-1 space-y-8">
+                  <input 
+                    name="title" 
+                    type="text" 
+                    placeholder="Product Title" 
+                    value={item.title} 
+                    onChange={handleChange} 
+                    required 
+                    maxLength={100}
+                    className="w-full p-4 border rounded-lg text-xl" 
+                  />
+                  <input 
+                    name="price" 
+                    type="number" 
+                    placeholder="Price ($)" 
+                    value={item.price} 
+                    onChange={handleChange} 
+                    required 
+                    min="0.01"
+                    step="0.01"
+                    className="w-full p-4 border rounded-lg text-xl [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                  />
+                  <div className="flex space-x-4">
+                    <input 
+                      name="amount" 
+                      type="number" 
+                      placeholder="Amount" 
+                      value={item.amount} 
+                      onChange={handleChange} 
+                      required 
+                      min="1"
+                      max="9999"
+                      className="w-1/2 p-4 border rounded-lg text-xl" 
+                    />
+                    <input 
+                      name="maxBuyAmount" 
+                      type="number" 
+                      placeholder="Max Buy Amount" 
+                      value={item.maxBuyAmount} 
+                      onChange={handleChange} 
+                      required 
+                      min="1"
+                      max={item.amount || "9999"}
+                      className="w-1/2 p-4 border rounded-lg text-xl" 
+                    />
+                  </div>
+                  <select name="categoryID" value={item.categoryID} onChange={handleChange} required className="w-full p-4 border rounded-lg text-xl">
+                    <option value="">Select Category</option>
+                    {categories.map((category) => (
+                      <option key={category.categoryID} value={category.categoryID}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
-            <textarea 
-              name="description" 
-              placeholder="Product Description" 
-              value={item.description} 
-              onChange={handleChange} 
-              required 
-              maxLength={1000}
-              className="w-full p-4 border rounded-lg text-xl" 
-              rows={5} 
-            />
-            <button 
-              type="submit" 
-              disabled={isSubmitting}
-              className={`w-full py-4 rounded-lg text-xl font-semibold text-white ${
-                isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
-            >
-              {isSubmitting ? 'Adding...' : 'Add Product'}
-            </button>
-          </form>
-        </div>
+              <textarea 
+                name="description" 
+                placeholder="Product Description" 
+                value={item.description} 
+                onChange={handleChange} 
+                required 
+                maxLength={1000}
+                className="w-full p-4 border rounded-lg text-xl" 
+                rows={5} 
+              />
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={`w-full py-4 rounded-lg text-xl font-semibold text-white ${
+                  isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {isSubmitting ? 'Adding...' : 'Add Product'}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
       {session && <UserInfo session={session} />}
     </div>

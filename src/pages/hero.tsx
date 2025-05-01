@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import Sidebar from "../components/sidebar";
 import UserInfo from "../components/UserInfo";
 import { useRoleBasedRedirect } from "../functions/functions";
+import LoadingSpinner from "../components/loading";
 
 const HeroPage = () => {
   const router = useRouter();
@@ -19,28 +20,24 @@ const HeroPage = () => {
 
   useRoleBasedRedirect(status, session, setIsLoading);
 
-  if (status === "loading" || isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
-
   return (
     <div className="flex h-screen relative">
       {/* Sidebar */}
       <Sidebar onExpand={setIsSidebarExpanded} />
 
       {/* Main Content */}
-      <main className={`flex-1 flex flex-col items-center justify-center text-center transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-[304px]' : 'ml-20'}`}>
-        <h1 className="text-4xl font-bold">
-          Find, best tech equipment - quickly and easily!
-        </h1>
+      <main className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-[304px]' : 'ml-20'}`}>
+        {(status === "loading" || isLoading) ? (
+          <div className="flex justify-center items-center h-full">
+            <LoadingSpinner />
+          </div>
+        ) : session ? (
+          <div className="flex flex-col items-center justify-center text-center h-full">
+            <h1 className="text-4xl font-bold">
+              Find, best tech equipment - quickly and easily!
+            </h1>
+          </div>
+        ) : null}
       </main>
 
       {/* User Info */}

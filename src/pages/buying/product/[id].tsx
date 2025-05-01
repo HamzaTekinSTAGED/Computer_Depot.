@@ -9,6 +9,7 @@ import Image from "next/image";
 import CommentTableForProduct from "../../../components/commentTableForProduct";
 import AddComment from "../../../components/addComment";
 import { CommentData } from "../../../components/comments";
+import LoadingSpinner from "../../../components/loading";
 
 interface Product {
   title: string;
@@ -146,8 +147,8 @@ export default function ProductDetail() {
 
   if (!product) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex h-screen relative justify-center items-center">
+        <LoadingSpinner />
       </div>
     );
   }
@@ -266,7 +267,9 @@ export default function ProductDetail() {
             <h3 className="text-xl font-semibold mb-4">Product Reviews</h3>
 
             {commentsLoading ? (
-              <div className="text-center p-4">Loading comments...</div>
+              <div className="flex justify-center items-center py-8">
+                <LoadingSpinner />
+              </div>
             ) : commentsError ? (
               <div className="text-center p-4 text-red-600">Error loading comments: {commentsError}</div>
             ) : session ? (

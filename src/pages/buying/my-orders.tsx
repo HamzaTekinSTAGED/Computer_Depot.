@@ -5,6 +5,7 @@ import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import LoadingSpinner from "../../components/loading";
 
 interface TradeHistory {
   id: number;
@@ -107,26 +108,28 @@ const MyOrdersPage = () => {
     <div className="flex h-screen relative">
       <Sidebar onExpand={setIsSidebarExpanded} />
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
-        <div className="p-6 max-w-7xl mx-auto">
-          <h1 className="text-4xl font-semibold text-center mb-6">My Orders</h1>
-
-          {/* Trade History List */}
-          <div className="space-y-4">
-            {isLoading ? (
-              <div className="flex justify-center items-center h-32">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-              </div>
-            ) : tradeHistory.length > 0 ? (
-              tradeHistory.map((trade) => (
-                <MemoizedTradeItem key={trade.id} trade={trade} />
-              ))
-            ) : (
-              <p className="text-center text-gray-500">
-                No purchase history found.
-              </p>
-            )}
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <LoadingSpinner />
           </div>
-        </div>
+        ) : (
+          <div className="p-6 max-w-7xl mx-auto">
+            <h1 className="text-4xl font-semibold text-center mb-6">My Orders</h1>
+
+            {/* Trade History List */}
+            <div className="space-y-4">
+              {tradeHistory.length > 0 ? (
+                tradeHistory.map((trade) => (
+                  <MemoizedTradeItem key={trade.id} trade={trade} />
+                ))
+              ) : (
+                <p className="text-center text-gray-500">
+                  No purchase history found.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
       {session && <UserInfo session={session} />}
     </div>

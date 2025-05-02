@@ -57,7 +57,10 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage({ text: data.error || `Failed to ${initialComment ? 'update' : 'submit'} comment.`, type: 'error' });
+        setMessage({ text: data.error === 'You can only comment on products you have purchased.' 
+          ? 'You can only comment on products you have purchased.' 
+          : data.error || `Failed to ${initialComment ? 'update' : 'submit'} comment.`, 
+          type: 'error' });
       } else {
         setMessage({ text: `Comment ${initialComment ? 'updated' : 'submitted'} successfully!`, type: 'success' });
         if (onCommentAdded) {

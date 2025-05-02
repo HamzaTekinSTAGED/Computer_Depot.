@@ -276,11 +276,14 @@ export default function ProductDetail() {
               userComment && !isEditingComment ? (
                  renderUserComment(userComment)
               ) : (
-                 <AddComment 
-                    productId={product.productID} 
-                    onCommentAdded={handleCommentAdded}
-                    initialComment={isEditingComment ? userComment : null}
-                 />
+                 <div className="text-center p-6 border rounded-lg shadow-md bg-white">
+                   <p className="text-gray-600 mb-4">You can add a comment after buying the product.</p>
+                   <AddComment 
+                      productId={product.productID} 
+                      onCommentAdded={handleCommentAdded}
+                      initialComment={isEditingComment ? userComment : null}
+                   />
+                 </div>
               )
             ) : (
               <p className="text-center text-gray-600 my-4 p-6 border rounded-lg shadow-md bg-white">Please log in to leave a comment.</p>

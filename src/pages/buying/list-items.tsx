@@ -23,6 +23,9 @@ interface Product {
   userID: number;
   productID: number;
   description: string;
+  comments?: {
+    star: number;
+  }[];
 }
 
 interface Category {
@@ -42,6 +45,13 @@ export default function ProductList() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  // Ortalama yıldız değerlendirmesini hesaplayan fonksiyon
+  const calculateAverageRating = (comments: { star: number }[] | undefined) => {
+    if (!comments || comments.length === 0) return 0;
+    const totalStars = comments.reduce((sum, comment) => sum + comment.star, 0);
+    return (totalStars / comments.length).toFixed(1);
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -66,17 +76,35 @@ export default function ProductList() {
         setIsLoading(true);
         const res = await fetch("/api/products");
         if (!res.ok) {
-          throw new Error("Ürünler getirilemedi.");
+          throw new Error("Failed to fetch products.");
         }
         const data = await res.json();
         // Filter out only current user's products, show all other products regardless of amount
         const filteredProducts = data.filter((product: Product) => 
           product.userID !== Number(session?.user?.id)
         );
-        setProducts(filteredProducts);
-        setFilteredProducts(filteredProducts);
+
+        // Her ürün için yorumları getir
+        const productsWithComments = await Promise.all(
+          filteredProducts.map(async (product: Product) => {
+            try {
+              const commentsRes = await fetch(`/api/comment/${product.productID}`);
+              if (commentsRes.ok) {
+                const comments = await commentsRes.json();
+                return { ...product, comments };
+              }
+              return product;
+            } catch (error) {
+              console.error(`Error fetching comments for product ${product.productID}:`, error);
+              return product;
+            }
+          })
+        );
+
+        setProducts(productsWithComments);
+        setFilteredProducts(productsWithComments);
       } catch (error) {
-        console.error("Hata:", error);
+        console.error("Error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -195,7 +223,18 @@ export default function ProductList() {
                       </div>
                     )}
                     <div className="p-6">
-                      <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
+                      <div className="flex justify-between items-start">
+                        <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
+                        <div className="flex items-center space-x-1 px-2 py-1 rounded-full">
+                          <span className="text-yellow-500 font-semibold text-lg">
+                            {calculateAverageRating(product.comments)}
+                          </span>
+                          <span className="text-yellow-500 text-2xl">★</span>
+                          <span className="text-gray-600 text-sm">
+                            ({product.comments?.length || 0})
+                          </span>
+                        </div>
+                      </div>
                       <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
                       <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
                       <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
@@ -203,7 +242,7 @@ export default function ProductList() {
                   </div>
                 ))
               ) : (
-                <p className="text-center text-gray-500">Uygun ürün bulunamadı.</p>
+                <p className="text-center text-gray-500 col-span-full">No products found.</p>
               )}
             </div>
           </div>

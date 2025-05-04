@@ -25,13 +25,15 @@ export default function SellPage() {
     title: "", 
     description: "", 
     price: "", 
-    amount: "1",
-    maxBuyAmount: "1",
+    amount: "",
+    maxBuyAmount: "",
     categoryID: "",
     imageURL: ""
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -98,22 +100,16 @@ export default function SellPage() {
         return;
       }
 
-      try {
-        setImagePreview(URL.createObjectURL(file));
-        const cloudinaryUrl = await uploadToCloudinary(file);
-        setItem(prev => ({ ...prev, imageURL: cloudinaryUrl }));
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        setError("Failed to upload image. Please try again.");
-        setImagePreview(null);
-      }
+      setImagePreview(URL.createObjectURL(file));
+      setSelectedImageFile(file);
       e.target.value = "";
     }
   };
 
   const handleImageDelete = () => {
     setImagePreview(null);
-    setItem(prev => ({ ...prev, imageURL: "" })); // Clear the Cloudinary URL too
+    setSelectedImageFile(null);
+    setItem(prev => ({ ...prev, imageURL: "" }));
     const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
     if (fileInput) {
       fileInput.value = "";
@@ -170,6 +166,18 @@ export default function SellPage() {
         return;
       }
 
+      let imageURL = null;
+      if (selectedImageFile) {
+        try {
+          imageURL = await uploadToCloudinary(selectedImageFile);
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          setError("Failed to upload image. Please try again.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       const productData = {
         title: item.title,
         description: item.description,
@@ -177,7 +185,7 @@ export default function SellPage() {
         amount: amount,
         maxBuyAmount: maxBuyAmount,
         category: item.categoryID,
-        imageURL: item.imageURL || null,
+        imageURL: imageURL,
         userID: parseInt(session.user.id),
         isSold: false
       };
@@ -196,7 +204,27 @@ export default function SellPage() {
         throw new Error(data.error || data.details || 'Failed to create product');
       }
 
-      router.push('/buying/list-items');
+      // Show success message
+      setSuccess("Product created successfully");
+      
+      // Clear form
+      setItem({ 
+        title: "", 
+        description: "", 
+        price: "", 
+        amount: "",
+        maxBuyAmount: "",
+        categoryID: "",
+        imageURL: ""
+      });
+      setImagePreview(null);
+      setSelectedImageFile(null);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+
     } catch (error) {
       console.error('Error details:', error);
       setError(error instanceof Error ? error.message : "An error occurred while adding the product. Please try again.");
@@ -219,6 +247,11 @@ export default function SellPage() {
             {error && (
               <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
                 {error}
+              </div>
+            )}
+            {success && (
+              <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                {success}
               </div>
             )}
             <form onSubmit={handleSubmit} className="flex flex-col space-y-8">
@@ -291,7 +324,7 @@ export default function SellPage() {
                     <input 
                       name="maxBuyAmount" 
                       type="number" 
-                      placeholder="Max Buy Amount" 
+                      placeholder="Buy Limit" 
                       value={item.maxBuyAmount} 
                       onChange={handleChange} 
                       required 

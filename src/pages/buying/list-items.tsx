@@ -8,6 +8,7 @@ import ProductPopup from "../../components/ProductPopup";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import LoadingSpinner from "../../components/loading";
+import { calculateAverageRating } from "../../utils/ratingUtils";
 
 interface Product {
   title: string;
@@ -45,13 +46,6 @@ export default function ProductList() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-
-  // Ortalama yıldız değerlendirmesini hesaplayan fonksiyon
-  const calculateAverageRating = (comments: { star: number }[] | undefined) => {
-    if (!comments || comments.length === 0) return 0;
-    const totalStars = comments.reduce((sum, comment) => sum + comment.star, 0);
-    return (totalStars / comments.length).toFixed(1);
-  };
 
   useEffect(() => {
     const fetchCategories = async () => {

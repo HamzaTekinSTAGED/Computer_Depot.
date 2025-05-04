@@ -10,6 +10,7 @@ import CommentTableForProduct from "../../../components/commentTableForProduct";
 import AddComment from "../../../components/addComment";
 import { CommentData } from "../../../components/comments";
 import LoadingSpinner from "../../../components/loading";
+import { calculateAverageRating } from "../../../utils/ratingUtils";
 
 interface Product {
   title: string;
@@ -184,13 +185,6 @@ export default function ProductDetail() {
        </div>
     </div>
   );
-
-  // Ortalama yıldız değerlendirmesini hesaplayan fonksiyon
-  const calculateAverageRating = (comments: CommentData[]) => {
-    if (comments.length === 0) return 0;
-    const totalStars = comments.reduce((sum, comment) => sum + comment.star, 0);
-    return (totalStars / comments.length).toFixed(1);
-  };
 
   return (
     <div className="min-h-screen bg-gray-100">

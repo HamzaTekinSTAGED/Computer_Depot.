@@ -273,8 +273,6 @@ export default function ProductDetail() {
             </div>
 
             <div className="mt-8 p-4 border-t space-y-4">
-              <h3 className="text-xl font-semibold mb-4">Product Reviews</h3>
-
               {commentsLoading ? (
                 <div className="flex justify-center items-center py-8">
                   <LoadingSpinner />
@@ -285,8 +283,7 @@ export default function ProductDetail() {
                 userComment && !isEditingComment ? (
                   renderUserComment(userComment)
                 ) : (
-                  <div className="text-center p-6 border rounded-lg shadow-md bg-white">
-                    <p className="text-gray-600 mb-4">You can add a comment after buying the product.</p>
+                  <div className=" bg-white">
                     <AddComment 
                       productId={product.productID} 
                       onCommentAdded={handleCommentAdded}

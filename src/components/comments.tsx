@@ -39,7 +39,7 @@ const Comments: React.FC<CommentsProps> = ({ comments }) => {
   // Parent component should handle error state
 
   if (comments.length === 0) {
-    return <div className="text-center p-4 text-gray-500">No comments yet for other users.</div>; // Updated message
+    return <div className="text-center p-4 text-gray-500"> - - - </div>; // Updated message
   }
 
   return (

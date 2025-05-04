@@ -30,7 +30,6 @@ export default function SellOrdersPage() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -59,12 +58,9 @@ export default function SellOrdersPage() {
   }, [session]);
 
   const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
+    router.push(`/selling/sold/${product.productID}`);
   };
 
-  const handleClosePopup = () => {
-    setSelectedProduct(null);
-  };
 
   return (
     <div className="flex h-screen relative">
@@ -115,19 +111,6 @@ export default function SellOrdersPage() {
         )}
       </div>
       {session && <UserInfo session={session} />}
-      
-      {selectedProduct && (
-        <ProductPopup
-          product={selectedProduct}
-          onClose={handleClosePopup}
-          onPurchase={async () => {
-            // Since this is the sell orders page, we don't need to implement purchase functionality
-            return Promise.resolve();
-          }}
-          isPurchasing={false}
-          isOwner={true}
-        />
-      )}
     </div>
   );
 }

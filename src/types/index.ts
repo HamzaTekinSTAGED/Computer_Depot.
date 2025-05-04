@@ -1,5 +1,123 @@
 import { MouseEventHandler } from "react";
 
+interface CommentUser {
+  username: string;
+  image: string | null;
+}
+
+// This interface should align with the actual data structure from the API
+export interface CommentData { // Exporting for use in parent component
+  id?: number; // Added optional id if available from API
+  userId: number;
+  productId: number;
+  star: number;
+  comment: string | null;
+  getLiked?: number; // Optional fields
+  photo?: string | null; // Optional fields
+  createdAt: string; // Keep as string for simplicity, format later if needed
+  user: CommentUser;
+}
+
+export interface CartItem {
+  id: number;
+  user_id: number;
+  product_id: number;
+  added_amount: number;
+  priceforoneItem: number;
+  product: {
+      title: string;
+      imageURL: string | null;
+      description: string;
+      maxBuyAmount: number;
+      amount: number;
+  };
+}
+
+export interface Product {
+  title: string;
+  categoryID: number;
+  category: {
+    name: string;
+  };
+  imageURL: string;
+  price: number;
+  amount: number;
+  maxBuyAmount: number;
+  isSold: boolean;
+  userID: number;
+  productID: number;
+  description: string;
+  comments?: {
+    star: number;
+  }[];
+  publishingDate: Date; 
+}
+
+export interface TradeHistory {
+  id: number;
+  buyerID: number;
+  sellerID: number;
+  productID: number;
+  price: number;
+  sellingDate: string;
+  product: {
+    title: string;
+    description: string;
+    imageURL: string;
+    amount: number;
+  };
+  buyer: {
+    username: string;
+  };
+  seller: {
+    username: string;
+  };
+  amount: number;
+}
+
+export interface RawProduct {
+  productID: number;
+  title: string;
+  description: string;
+  price: number;
+  amount: number; // Added amount to interface
+  category: string;
+  imageURL: string;
+  isSold: boolean;
+  publishingDate: Date;
+  userID: number;
+}
+
+export interface Category {
+  categoryID: number;
+  name: string;
+  description: string | null;
+}
+
+export interface SlidingBarProps {
+  activeTab: "buy" | "sell" | null;
+  position: number;
+  showBar: boolean;
+  sidebarWidth: number;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
+
+export interface ProductPopupProps {
+  product: Product;
+  onClose: () => void;
+  onPurchase: (productId: number) => Promise<void>;
+  isPurchasing: boolean;
+  isOwner?: boolean;
+}
+
+
+
+
+
+
+
+
 export interface CustomButtonProps {
     title: string;
     containerStyles?: string;
@@ -18,9 +136,6 @@ export interface FormData {
     password: string;
     confirmPassword?: string;
 }
-
-
-
 
 export interface Router {
   push: (path: string) => void;

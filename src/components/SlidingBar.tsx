@@ -2,15 +2,7 @@
 
 import { forwardRef } from "react";
 import { useRouter } from "next/router";
-
-interface SlidingBarProps {
-  activeTab: "buy" | "sell" | null;
-  position: number;
-  showBar: boolean;
-  sidebarWidth: number;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-}
+import { SlidingBarProps } from "@/types";
 
 const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
   ({ activeTab, position, showBar, sidebarWidth, onMouseEnter, onMouseLeave }, ref) => {

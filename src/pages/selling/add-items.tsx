@@ -8,12 +8,7 @@ import UserInfo from "../../components/UserInfo";
 import Image from "next/image";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 import LoadingSpinner from "../../components/loading";
-
-interface Category {
-  categoryID: number;
-  name: string;
-  description: string | null;
-}
+import { Category } from "@/types";
 
 export default function SellPage() {
   const router = useRouter();

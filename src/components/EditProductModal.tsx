@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-
+import { Product, Category } from '@/types';
 // Assuming Product and Category types are defined elsewhere or we define them here
 // Let's redefine simplified versions here for clarity
 type ProductFormData = {
@@ -12,10 +12,6 @@ type ProductFormData = {
   isSold: boolean;
 };
 
-type Category = {
-  categoryID: number;
-  name: string;
-};
 
 interface EditProductModalProps {
   productId: number;

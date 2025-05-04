@@ -4,31 +4,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import EditProductModal from "../../components/EditProductModal";
-
-// Define types based on Prisma schema
-type Product = {
-  productID: number;
-  title: string;
-  description: string;
-  price: number;
-  amount: number;
-  categoryID: number;
-  imageURL: string | null;
-  isSold: boolean;
-  publishingDate: Date;
-  userID: number;
-  category?: {
-    name: string;
-  };
-  user?: {
-    username: string;
-  };
-};
-
-type Category = {
-  categoryID: number;
-  name: string;
-};
+import { Product,Category } from "@/types";
 
 const ProductsPage = () => {
   const router = useRouter();

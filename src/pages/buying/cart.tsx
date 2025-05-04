@@ -7,21 +7,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Trash2 } from "lucide-react";
 import LoadingSpinner from "../../components/loading";
-
-interface CartItem {
-    id: number;
-    user_id: number;
-    product_id: number;
-    added_amount: number;
-    priceforoneItem: number;
-    product: {
-        title: string;
-        imageURL: string | null;
-        description: string;
-        maxBuyAmount: number;
-        amount: number;
-    };
-}
+import { CartItem } from "@/types";
 
 export default function CartPage() {
     const { data: session } = useSession();

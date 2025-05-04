@@ -8,22 +8,10 @@ import UserInfo from "../../../components/UserInfo";
 import Image from "next/image";
 import CommentTableForProduct from "../../../components/commentTableForProduct";
 import {checkIfUserIsSellerOfProduct} from "../../../utils/accessControl";
-import { CommentData } from "../../../components/comments";
+import { CommentData} from "../../../types";
 import LoadingSpinner from "../../../components/loading";
-
-interface Product {
-  title: string;
-  description: string;
-  price: number;
-  amount: number;
-  maxBuyAmount: number;
-  category: {
-    name: string;
-  };
-  imageURL: string | null;
-  productID: number;
-}
-
+import { types } from "util";
+import { Product } from "../../../types";
 export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;

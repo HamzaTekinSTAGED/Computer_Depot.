@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react';
-import Comments, { CommentData } from './comments'; // Import the Comments component and CommentData type
-
+import Comments from './comments'; // Import the Comments component and CommentData type
+import { CommentData } from '@/types';
 // Update props to accept comments array
 interface CommentTableForProductProps {
   // productId: number; // Removed productId

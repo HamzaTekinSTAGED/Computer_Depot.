@@ -9,31 +9,10 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import LoadingSpinner from "../../components/loading";
 import { calculateAverageRating } from "../../utils/ratingUtils";
+import { Category, Product } from "@/types";
 
-interface Product {
-  title: string;
-  categoryID: number;
-  category: {
-    name: string;
-  };
-  imageURL: string;
-  price: number;
-  amount: number;
-  maxBuyAmount: number;
-  isSold: boolean;
-  userID: number;
-  productID: number;
-  description: string;
-  comments?: {
-    star: number;
-  }[];
-}
 
-interface Category {
-  categoryID: number;
-  name: string;
-  description: string | null;
-}
+
 
 export default function ProductList() {
   const { data: session } = useSession();

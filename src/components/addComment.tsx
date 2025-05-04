@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { CommentData } from './comments';
+import { CommentData } from '@/types';
 
 interface AddCommentProps {
   productId: number;

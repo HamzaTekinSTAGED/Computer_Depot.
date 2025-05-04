@@ -5,12 +5,9 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '../../components/sidebar';
 import UserInfo from '../../components/UserInfo';
+import { Category } from '@/types';
 
-interface Category {
-  categoryID: number;
-  name: string;
-  description: string | null;
-}
+
 
 export default function CategoriesPage() {
   const router = useRouter();

@@ -1,27 +1,9 @@
 import { FC, useState } from 'react';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
+import { Product } from '@/types';
 
-interface Product {
-  title: string;
-  description: string;
-  price: number;
-  amount: number;
-  maxBuyAmount: number;
-  category: {
-    name: string;
-  };
-  imageURL: string | null;
-  productID: number;
-}
-
-interface ProductPopupProps {
-  product: Product;
-  onClose: () => void;
-  onPurchase: (productId: number) => Promise<void>;
-  isPurchasing: boolean;
-  isOwner?: boolean;
-}
+import { ProductPopupProps } from '@/types';
 
 const ProductPopup: FC<ProductPopupProps> = ({ product, onClose, isOwner = false }) => {
   const [quantity, setQuantity] = useState(1);

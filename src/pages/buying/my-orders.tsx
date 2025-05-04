@@ -7,29 +7,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import LoadingSpinner from "../../components/loading";
 import Link from "next/link";
-
-interface TradeHistory {
-  id: number;
-  buyerID: number;
-  sellerID: number;
-  productID: number;
-  price: number;
-  sellingDate: string;
-  product: {
-    title: string;
-    description: string;
-    imageURL: string;
-    amount: number;
-  };
-  buyer: {
-    username: string;
-  };
-  seller: {
-    username: string;
-  };
-  amount: number;
-}
-
+import { TradeHistory } from "@/types";
 const MyOrdersPage = () => {
   const { data: session } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);

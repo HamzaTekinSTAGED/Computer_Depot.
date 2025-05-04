@@ -8,21 +8,7 @@ import UserInfo from "../../components/UserInfo";
 import ProductPopup from "../../components/ProductPopup";
 import Image from "next/image";
 import LoadingSpinner from "../../components/loading";
-
-interface Product {
-  productID: number;
-  title: string;
-  description: string;
-  price: number;
-  amount: number;
-  maxBuyAmount: number;
-  categoryID: number;
-  category: {
-    name: string;
-  };
-  imageURL: string | null;
-  userID: number;
-}
+import { Product } from "@/types";
 
 export default function SellOrdersPage() {
   const router = useRouter();

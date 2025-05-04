@@ -3,19 +3,7 @@ import { db } from '@/lib/db';
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-
-interface RawProduct {
-  productID: number;
-  title: string;
-  description: string;
-  price: number;
-  amount: number; // Added amount to interface
-  category: string;
-  imageURL: string;
-  isSold: boolean;
-  publishingDate: Date;
-  userID: number;
-}
+import { RawProduct } from '@/types';
 
 export default async function handler(
   req: NextApiRequest,

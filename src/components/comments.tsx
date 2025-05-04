@@ -3,23 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 
-interface CommentUser {
-  username: string;
-  image: string | null;
-}
-
-// This interface should align with the actual data structure from the API
-export interface CommentData { // Exporting for use in parent component
-  id?: number; // Added optional id if available from API
-  userId: number;
-  productId: number;
-  star: number;
-  comment: string | null;
-  getLiked?: number; // Optional fields
-  photo?: string | null; // Optional fields
-  createdAt: string; // Keep as string for simplicity, format later if needed
-  user: CommentUser;
-}
+import { CommentData } from '@/types';
 
 // Updated Props: Expect an array of comments
 interface CommentsProps {

@@ -25,29 +25,50 @@ export default function ProductDetail() {
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [commentsError, setCommentsError] = useState<string | null>(null);
   const [refreshCommentsKey, setRefreshCommentsKey] = useState(0);
-  const [hasAccess, setHasAccess] = useState<boolean>(true); 
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [isAccessChecking, setIsAccessChecking] = useState(true);
 
   // To check if the user really the seller of the product
   useEffect(() => {
-    if (!id || Array.isArray(id) || !session?.user?.id) return;
-  
+    if (!id || Array.isArray(id) || !session?.user?.id) {
+        setHasAccess(false);
+        setIsAccessChecking(false);
+        return;
+    }
+
+    setIsAccessChecking(true);
     checkIfUserIsSellerOfProduct(id, Number(session.user.id))
-      .then(setHasAccess)
+      .then(accessGranted => {
+        setHasAccess(accessGranted);
+      })
       .catch(err => {
         console.error("Access check failed:", err);
         setHasAccess(false);
+      })
+      .finally(() => {
+        setIsAccessChecking(false);
       });
   }, [id, session]);
 
   // Get product infos from database
   useEffect(() => {
     const fetchProduct = async () => {
-      if (id) {
+      if (id && hasAccess !== false) {
         try {
           const response = await fetch(`/api/products/${id}`);
           if (response.ok) {
             const data = await response.json();
             setProduct(data);
+            // Mark new comment as read if user is the seller and new comment exists
+            if (data.newCommentExist && hasAccess === true) {
+              fetch(`/api/products/${id}`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ newCommentExist: false }),
+              });
+            }
           } else {
             console.error('Error fetching product:', response.statusText);
             setProduct(null);
@@ -60,11 +81,11 @@ export default function ProductDetail() {
     };
 
     fetchProduct();
-  }, [id]);
+  }, [id, hasAccess]);
 
   // Get comments from database
   useEffect(() => {
-    if (!id) return;
+    if (!id || hasAccess === false) return;
 
     const fetchComments = async () => {
       setCommentsLoading(true);
@@ -93,11 +114,12 @@ export default function ProductDetail() {
     };
 
     fetchComments();
-  }, [id, session, refreshCommentsKey]);
+  }, [id, session, refreshCommentsKey, hasAccess]);
 
 
-  // While these operation happens loading state shown
-  const isLoading = !id || status === "loading" || hasAccess === null;
+  // Consolidated Loading State
+  const isLoading = !id || status === "loading" || isAccessChecking || (hasAccess === true && !product);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -106,8 +128,8 @@ export default function ProductDetail() {
     );
   }
 
-  // If user not the seller dont let go to page
-  if (!hasAccess) {
+  // Explicit Access Denied State (checked after loading)
+  if (hasAccess === false) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p className="text-xl text-red-600 font-semibold">
@@ -117,11 +139,13 @@ export default function ProductDetail() {
     );
   }
 
-  // Till the product brought from database, user will see loadind spinner
+  // Product not found (or error fetching product) after access check passed
   if (!product) {
     return (
       <div className="flex h-screen relative justify-center items-center">
-        <LoadingSpinner />
+         <p className="text-xl text-red-600 font-semibold">
+           Could not load product details.
+         </p>
       </div>
     );
   }

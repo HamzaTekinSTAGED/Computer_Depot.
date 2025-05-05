@@ -110,6 +110,7 @@ model Product {
   tradeHistory TradeHistory[]
   cart         Cart[]
   comments     Comment[]
+  newCommentExist Boolean @default(false)
 
   @@index([userID]) // Foreign key için index
   @@index([categoryID]) // Kategori aramaları için index

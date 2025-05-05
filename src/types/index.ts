@@ -47,6 +47,7 @@ export interface Product {
   userID: number;
   productID: number;
   description: string;
+  newCommentExist: boolean;
   comments?: {
     star: number;
   }[];

@@ -95,6 +95,53 @@ export default async function handler(
     }
   }
 
+  // --- PATCH to update specific fields (like newCommentExist) ---
+  if (req.method === 'PATCH') {
+    const session = await getServerSession(req, res, authOptions);
+
+    if (!session || !session.user?.id) {
+        return res.status(401).json({ message: 'Not Authenticated' });
+    }
+
+    const userId = parseInt(session.user.id);
+    const { newCommentExist } = req.body;
+
+    if (typeof newCommentExist !== 'boolean') {
+        return res.status(400).json({ message: 'Invalid value for newCommentExist. Must be boolean.' });
+    }
+
+    try {
+        // 1. Find the product to verify ownership
+        const product = await prisma.product.findUnique({
+            where: { productID: productId },
+            select: { userID: true } // Only select the owner's ID
+        });
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // 2. Check if the authenticated user is the seller
+        if (product.userID !== userId) {
+            return res.status(403).json({ message: 'Not Authorized. Only the seller can modify this.' });
+        }
+
+        // 3. Update the product
+        const updatedProduct = await prisma.product.update({
+            where: { productID: productId },
+            data: { newCommentExist },
+        });
+
+        return res.status(200).json(updatedProduct);
+    } catch (error: any) {
+        console.error('Error updating product (PATCH):', error);
+        if (error.code === 'P2025') {
+            return res.status(404).json({ message: 'Product not found during update' });
+        }
+        return res.status(500).json({ message: 'Failed to update product' });
+    }
+  }
+
   // --- DELETE a product by ID ---
   if (req.method === 'DELETE') {
     const session = await getServerSession(req, res, authOptions);
@@ -123,6 +170,6 @@ export default async function handler(
   }
 
   // Handle other methods or return method not allowed
-  res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
+  res.setHeader('Allow', ['GET', 'PUT', 'DELETE', 'PATCH']);
   return res.status(405).end(`Method ${req.method} Not Allowed`);
 } 

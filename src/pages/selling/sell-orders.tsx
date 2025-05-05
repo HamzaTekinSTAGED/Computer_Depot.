@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
-import ProductPopup from "../../components/ProductPopup";
 import Image from "next/image";
 import LoadingSpinner from "../../components/loading";
 import { Product } from "@/types";
@@ -83,7 +82,12 @@ export default function SellOrdersPage() {
                       </div>
                     )}
                     <div className="p-4">
-                      <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
+                      <h3 className="text-xl font-semibold mb-2 flex items-center">
+                        {product.title}
+                        {product.newCommentExist && (
+                          <span className="ml-2 w-3 h-3 bg-blue-500 rounded-full" title="New comment"></span>
+                        )}
+                      </h3>
                       <p className="text-gray-600 mb-2">{product.description}</p>
                       <p className="text-lg font-bold mb-2">${product.price}</p>
                       <p className="text-sm text-gray-500 mb-2">Amount: {product.amount}</p>

@@ -79,35 +79,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Use upsert to create or update the comment
       console.log("API LOG: Purchase verified, proceeding with comment upsert");
-      const newOrUpdatedComment = await prisma.comment.upsert({
-        where: {
-          userId_productId: { 
+
+      // Use a transaction to ensure both operations succeed or fail together
+      const [newOrUpdatedComment] = await prisma.$transaction([
+        prisma.comment.upsert({
+          where: {
+            userId_productId: {
+              userId: userId,
+              productId: id,
+            },
+          },
+          update: {
+            star: star,
+            comment: comment || null,
+          },
+          create: {
             userId: userId,
             productId: id,
+            star: star,
+            comment: comment || null,
           },
-        },
-        update: { 
-          star: star,
-          comment: comment || null, 
-        },
-        create: { 
-          userId: userId,
-          productId: id,
-          star: star,
-          comment: comment || null,
-        },
-        include: { 
-             user: {
-                 select: {
-                     username: true,
-                     image: true,
-                 },
-             },
-        }
-      });
+          include: {
+            user: {
+              select: {
+                username: true,
+                image: true,
+              },
+            },
+          }
+        }),
+        prisma.product.update({
+          where: { productID: id },
+          data: { newCommentExist: true }
+        })
+      ]);
 
-      console.log("API LOG: Returning 201 - Comment upsert successful");
-      return res.status(201).json(newOrUpdatedComment); 
+      console.log("API LOG: Returning 201 - Comment upsert and product update successful");
+      return res.status(201).json(newOrUpdatedComment);
 
     } catch (error) {
       console.error('API ERROR: Failed to add/update comment:', error);

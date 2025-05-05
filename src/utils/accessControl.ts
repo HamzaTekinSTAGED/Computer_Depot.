@@ -1,3 +1,5 @@
+import { Product } from '@/types'; // Assuming you have a Product type
+
 export const checkIfUserIsSellerOfProduct = async (
     productId: string | string[] | undefined,
     userId: number
@@ -8,11 +10,15 @@ export const checkIfUserIsSellerOfProduct = async (
         return false;
       }
   
-      const res = await fetch(`/api/trade/seller-of-product/${productId}`);
-      if (!res.ok) throw new Error("Failed to fetch seller data");
+      const productRes = await fetch(`/api/products/${productId}`);
+      if (!productRes.ok) {
+        // If product not found (404), user is definitely not the seller
+        if (productRes.status === 404) return false;
+        throw new Error("Failed to fetch product data");
+      }
   
-      const data = await res.json();
-      return Number(userId) === data.sellerID;
+      const productData: Product = await productRes.json();
+      return Number(userId) === productData.userID;
     } catch (err) {
       console.error("Error in access check:", err);
       return false;

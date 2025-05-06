@@ -142,38 +142,6 @@ export default function ProductDetail() {
     );
   }
 
-  const renderUserComment = (comment: CommentData) => (
-    <div className="bg-blue-50 p-4 rounded-lg shadow flex space-x-3 border border-blue-200">
-       <div className="flex-shrink-0">
-          <Image
-              src={comment.user.image || '/default-avatar-400x400.png'}
-              alt={`${comment.user.username}'s avatar`}
-              width={40}
-              height={40}
-              className="rounded-full"
-          />
-       </div>
-       <div className="flex-1">
-          <div className="flex justify-between items-center">
-              <span className="font-semibold text-sm">{comment.user.username} (Your Comment)</span>
-              <span className="text-xs text-gray-500">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className={i < comment.star ? 'text-yellow-400' : 'text-gray-300'}>★</span>
-                ))}
-                <span className="ml-2">{new Date(comment.createdAt).toLocaleDateString()}</span>
-              </span>
-          </div>
-          <p className="text-sm text-gray-700 mt-1">{comment.comment || <i>No comment text provided.</i>}</p>
-          <button 
-            onClick={() => setIsEditingComment(true)}
-            className="mt-2 text-xs bg-blue-100 hover:bg-blue-200 text-blue-800 py-1 px-2 rounded"
-          >
-            Change Comment
-          </button>
-       </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-gray-100">
       <Sidebar onExpand={setIsSidebarExpanded} />
@@ -267,29 +235,38 @@ export default function ProductDetail() {
                 </div>
               ) : commentsError ? (
                 <div className="text-center p-4 text-red-600">Error loading comments: {commentsError}</div>
-              ) : session ? (
-                userComment && !isEditingComment ? (
-                  renderUserComment(userComment)
-                ) : (
-                  <div className=" bg-white">
-                    <AddComment 
-                      productId={product.productID} 
-                      onCommentAdded={handleCommentAdded}
-                      initialComment={isEditingComment ? userComment : null}
-                    />
-                  </div>
-                )
               ) : (
-                <p className="text-center text-gray-600 my-4 p-6 border rounded-lg shadow-md bg-white">Please log in to leave a comment.</p>
+                <>
+                  {session && (
+                    userComment && !isEditingComment ? (
+                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center">
+                        <p className="text-sm text-gray-700">You've commented on this product. Your comment is shown below. Want to change it?</p>
+                        <button
+                          onClick={() => setIsEditingComment(true)}
+                          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm whitespace-nowrap"
+                        >
+                          Edit Your Comment
+                        </button>
+                      </div>
+                    ) : (isEditingComment || !userComment) ? (
+                      <div className="bg-white mb-4">
+                        <AddComment 
+                          productId={product.productID} 
+                          onCommentAdded={handleCommentAdded}
+                          initialComment={isEditingComment ? userComment : null}
+                        />
+                      </div>
+                    ) : null
+                  )}
+                  {!session && (
+                     <p className="text-center text-gray-600 my-4 p-6 border rounded-lg shadow-md bg-white">Please log in to leave a comment.</p>
+                  )}
+
+                  <CommentTableForProduct 
+                    comments={allComments}
+                  />
+                </>
               )}
-
-              {session && userComment && !isEditingComment && <hr className="my-6"/>}
-
-              {!commentsLoading && !commentsError && product && 
-                <CommentTableForProduct 
-                  comments={allComments.filter(c => c.userId !== Number(session?.user?.id || 0))}
-                />
-              }
             </div>
           </div>
         </div>

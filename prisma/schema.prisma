@@ -35,6 +35,7 @@ model User {
   sessions        Session[]
   cart            Cart[]
   comments        Comment[]
+  replies         Reply[] // Added relation to replies made by the user
 }
 
 enum UserRole {
@@ -162,6 +163,7 @@ model Comment {
   // Relations
   user       User                @relation(fields: [userId], references: [userID], onDelete: Cascade) // Cascade delete comments if user is deleted
   product    Product             @relation(fields: [productId], references: [productID], onDelete: Cascade) // Cascade delete comments if product is deleted
+  replies    Reply[] // Relation to replies
 
   // Composite primary key to prevent multiple comments from the same user on the same product
   @@id([userId, productId])
@@ -169,4 +171,20 @@ model Comment {
   // Index for faster lookups
   @@index([userId])
   @@index([productId])
+}
+
+model Reply {
+  replyID    Int      @id @default(autoincrement())
+  commentUser Int // references Comment's composite key part 1
+  commentProduct Int // references Comment's composite key part 2
+  userID     Int      // ID of the user (seller) who made the reply
+  text       String   @db.VarChar(500)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  comment    Comment  @relation(fields: [commentUser, commentProduct], references: [userId, productId], onDelete: Cascade)
+  user       User     @relation(fields: [userID], references: [userID], onDelete: Cascade)
+
+  @@index([commentUser, commentProduct])
+  @@index([userID])
 }

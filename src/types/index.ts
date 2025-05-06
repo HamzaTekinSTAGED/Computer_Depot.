@@ -16,6 +16,18 @@ export interface CommentData { // Exporting for use in parent component
   photo?: string | null; // Optional fields
   createdAt: string; // Keep as string for simplicity, format later if needed
   user: CommentUser;
+  replies?: ReplyData[]; // Optional array of replies
+}
+
+export interface ReplyData {
+  replyID: number;
+  commentUser: number;
+  commentProduct: number;
+  userID: number;
+  text: string;
+  createdAt: string; // Keep as string for simplicity
+  updatedAt: string; // Keep as string for simplicity
+  user: CommentUser; // User who made the reply (seller)
 }
 
 export interface CartItem {
@@ -111,13 +123,6 @@ export interface ProductPopupProps {
   isPurchasing: boolean;
   isOwner?: boolean;
 }
-
-
-
-
-
-
-
 
 export interface CustomButtonProps {
     title: string;

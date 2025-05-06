@@ -7,15 +7,17 @@ import { CommentData } from '@/types';
 interface CommentTableForProductProps {
   // productId: number; // Removed productId
   comments: CommentData[];
+  isSellerView?: boolean;
+  onInitiateReply?: (commentUserId: number, commentProductId: number) => void;
 }
 
-const CommentTableForProduct: React.FC<CommentTableForProductProps> = ({ comments }) => {
+const CommentTableForProduct: React.FC<CommentTableForProductProps> = ({ comments, isSellerView, onInitiateReply }) => {
   // Basic structure, you can add more layout, headers, etc.
   return (
     <div className="mt-8 p-4 border-t">
       <h3 className="text-xl font-semibold mb-4">Product Reviews</h3>
-      {/* Pass the received comments array to the Comments component */}
-      <Comments comments={comments} /> 
+      {/* Pass the received comments array and new props to the Comments component */}
+      <Comments comments={comments} isSellerView={isSellerView} onInitiateReply={onInitiateReply} /> 
     </div>
   );
 };

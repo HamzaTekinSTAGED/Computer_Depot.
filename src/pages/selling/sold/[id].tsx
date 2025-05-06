@@ -8,10 +8,10 @@ import UserInfo from "../../../components/UserInfo";
 import Image from "next/image";
 import CommentTableForProduct from "../../../components/commentTableForProduct";
 import {checkIfUserIsSellerOfProduct} from "../../../utils/accessControl";
-import { CommentData} from "../../../types";
+import { CommentData, ReplyData } from "../../../types";
 import LoadingSpinner from "../../../components/loading";
-import { types } from "util";
 import { Product } from "../../../types";
+
 export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;
@@ -27,6 +27,13 @@ export default function ProductDetail() {
   const [refreshCommentsKey, setRefreshCommentsKey] = useState(0);
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [isAccessChecking, setIsAccessChecking] = useState(true);
+
+  // State for reply functionality
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [replyingToComment, setReplyingToComment] = useState<{ userId: number; productId: number } | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [replyError, setReplyError] = useState<string | null>(null);
 
   // To check if the user really the seller of the product
   useEffect(() => {
@@ -116,6 +123,64 @@ export default function ProductDetail() {
     fetchComments();
   }, [id, session, refreshCommentsKey, hasAccess]);
 
+  const handleInitiateReply = (commentUserId: number, commentProductId: number) => {
+    setReplyingToComment({ userId: commentUserId, productId: commentProductId });
+    setShowReplyModal(true);
+    setReplyText("");
+    setReplyError(null);
+  };
+
+  const handleReplySubmit = async () => {
+    if (!replyingToComment || !replyText.trim() || !session?.user?.id) {
+      setReplyError("Cannot submit empty reply or not properly initiated.");
+      return;
+    }
+
+    setIsSubmittingReply(true);
+    setReplyError(null);
+
+    try {
+      const response = await fetch('/api/replies', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          commentUserId: replyingToComment.userId,
+          commentProductId: replyingToComment.productId,
+          text: replyText.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to submit reply.");
+      }
+
+      const newReply: ReplyData = await response.json();
+
+      setAllComments(prevComments => 
+        prevComments.map(comment => 
+          comment.userId === replyingToComment.userId && comment.productId === replyingToComment.productId
+            ? { 
+                ...comment, 
+                replies: [...(comment.replies || []), newReply] 
+              }
+            : comment
+        )
+      );
+      
+      setShowReplyModal(false);
+      setReplyingToComment(null);
+      setReplyText("");
+
+    } catch (error) {
+      console.error("Error submitting reply:", error);
+      setReplyError(error instanceof Error ? error.message : "An unknown error occurred while submitting reply.");
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
 
   // Consolidated Loading State
   const isLoading = !id || status === "loading" || isAccessChecking || (hasAccess === true && !product);
@@ -149,7 +214,6 @@ export default function ProductDetail() {
       </div>
     );
   }
-
 
   // Calculating Average Rating
   const calculateAverageRating = (comments: CommentData[]) => {
@@ -199,6 +263,8 @@ export default function ProductDetail() {
               {!commentsLoading && !commentsError && product && 
                 <CommentTableForProduct 
                   comments={allComments.filter(c => c.userId !== Number(session?.user?.id || 0))}
+                  isSellerView={hasAccess === true}
+                  onInitiateReply={handleInitiateReply}
                 />
               }
             
@@ -206,6 +272,44 @@ export default function ProductDetail() {
         </div>
         {session && <UserInfo session={session} />}
       </div>
+
+      {/* Reply Modal - Basic Implementation */}
+      {showReplyModal && replyingToComment && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h3 className="text-xl font-semibold mb-4">Reply to Comment</h3>
+            <textarea
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              placeholder="Write your reply..."
+              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              rows={4}
+              maxLength={500}
+            />
+            {replyError && <p className="text-sm text-red-600 mt-2">{replyError}</p>}
+            <div className="mt-4 flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowReplyModal(false);
+                  setReplyingToComment(null);
+                  setReplyError(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                disabled={isSubmittingReply}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReplySubmit}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                disabled={isSubmittingReply || !replyText.trim()}
+              >
+                {isSubmittingReply ? <LoadingSpinner /> : "Submit Reply"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

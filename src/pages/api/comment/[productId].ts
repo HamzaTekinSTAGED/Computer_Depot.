@@ -25,6 +25,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               image: true,
             },
           },
+          replies: { // Include replies for each comment
+            include: {
+              user: { // Include user details for each reply (the seller)
+                select: {
+                  username: true,
+                  image: true,
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'asc' // Show oldest replies first
+            }
+          }
         },
         orderBy: {
           createdAt: 'desc', // Show newest comments first

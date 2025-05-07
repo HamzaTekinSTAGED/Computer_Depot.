@@ -211,6 +211,11 @@ export default function ProductList() {
                       <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
                       <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
                       <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
+                      {product.amount === 0 && (
+                        <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-semibold">
+                          Sold Out
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))

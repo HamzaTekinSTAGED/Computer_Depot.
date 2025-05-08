@@ -17,6 +17,7 @@ export interface CommentData { // Exporting for use in parent component
   createdAt: string; // Keep as string for simplicity, format later if needed
   user: CommentUser;
   replies?: ReplyData[]; // Optional array of replies
+  currentUserLiked?: boolean; // Indicates if the current session user has liked this comment
 }
 
 export interface ReplyData {

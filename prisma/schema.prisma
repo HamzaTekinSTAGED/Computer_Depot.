@@ -36,6 +36,7 @@ model User {
   cart            Cart[]
   comments        Comment[]
   replies         Reply[] // Added relation to replies made by the user
+  commentLikes    Like[] @relation("UserLikes")
 }
 
 enum UserRole {
@@ -164,6 +165,7 @@ model Comment {
   user       User                @relation(fields: [userId], references: [userID], onDelete: Cascade) // Cascade delete comments if user is deleted
   product    Product             @relation(fields: [productId], references: [productID], onDelete: Cascade) // Cascade delete comments if product is deleted
   replies    Reply[] // Relation to replies
+  likes      Like[] // Relation to likes
 
   // Composite primary key to prevent multiple comments from the same user on the same product
   @@id([userId, productId])
@@ -186,5 +188,20 @@ model Reply {
   user       User     @relation(fields: [userID], references: [userID], onDelete: Cascade)
 
   @@index([commentUser, commentProduct])
+  @@index([userID])
+}
+
+model Like {
+  userID           Int
+  commentUserID    Int 
+  commentProductID Int
+  isLiked          Boolean  @default(false)
+
+  // Relations
+  user             User     @relation("UserLikes", fields: [userID], references: [userID], onDelete: Cascade)
+  comment          Comment  @relation(fields: [commentUserID, commentProductID], references: [userId, productId], onDelete: Cascade)
+
+  @@id([userID, commentUserID, commentProductID]) // Composite primary key
+  @@index([commentUserID, commentProductID])
   @@index([userID])
 }

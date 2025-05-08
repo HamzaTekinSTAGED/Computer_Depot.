@@ -16,18 +16,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   // Handle GET request to fetch comments
   if (req.method === 'GET') {
     try {
-      const comments = await prisma.comment.findMany({
+      const session = await getServerSession(req, res, authOptions);
+      const currentUserId = session?.user?.id ? Number(session.user.id) : null;
+
+      const commentsData = await prisma.comment.findMany({
         where: { productId: id },
         include: {
           user: {
             select: {
-              username: true, // Select only necessary user fields
+              username: true,
               image: true,
             },
           },
-          replies: { // Include replies for each comment
+          replies: {
             include: {
-              user: { // Include user details for each reply (the seller)
+              user: {
                 select: {
                   username: true,
                   image: true,
@@ -35,15 +38,49 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               }
             },
             orderBy: {
-              createdAt: 'asc' // Show oldest replies first
+              createdAt: 'asc'
             }
           }
+          // We will fetch likes separately if a user is logged in
         },
         orderBy: {
-          createdAt: 'desc', // Show newest comments first
+          createdAt: 'desc',
         },
       });
-      return res.status(200).json(comments);
+
+      if (currentUserId) {
+        // Fetch all 'true' likes by the current user for the comments of this product
+        const userLikes = await prisma.like.findMany({
+          where: {
+            userID: currentUserId,
+            commentProductID: id, // All comments are for this product
+            isLiked: true,
+          },
+          select: {
+            commentUserID: true, // We only need to know which comment (by its author's ID) was liked
+            // commentProductID is already known (it's `id`)
+          }
+        });
+
+        // Create a set of commentUserIds that the current user has liked for efficient lookup
+        const likedCommentUserIds = new Set(userLikes.map(like => like.commentUserID));
+
+        // Augment comments with currentUserLiked status
+        const commentsWithLikeStatus = commentsData.map(comment => ({
+          ...comment,
+          currentUserLiked: likedCommentUserIds.has(comment.userId),
+        }));
+        return res.status(200).json(commentsWithLikeStatus);
+
+      } else {
+        // If no user is logged in, add currentUserLiked: false (or undefined, which is fine)
+        const commentsWithLikeStatus = commentsData.map(comment => ({
+          ...comment,
+          currentUserLiked: false, // Explicitly false if no session
+        }));
+        return res.status(200).json(commentsWithLikeStatus);
+      }
+
     } catch (error) {
       console.error('Failed to fetch comments:', error);
       return res.status(500).json({ error: 'Failed to fetch comments' });

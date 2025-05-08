@@ -29,6 +29,8 @@ export default function ProductDetail() {
   const [commentsError, setCommentsError] = useState<string | null>(null);
   const [refreshCommentsKey, setRefreshCommentsKey] = useState(0);
 
+  const currentUserId = session?.user?.id ? Number(session.user.id) : null;
+
   useEffect(() => {
     const fetchProduct = async () => {
       if (id) {
@@ -67,8 +69,8 @@ export default function ProductDetail() {
         const commentsData: CommentData[] = await response.json();
         setAllComments(commentsData);
 
-        if (session?.user?.id) {
-          const foundUserComment = commentsData.find(comment => comment.userId === Number(session.user.id));
+        if (currentUserId) {
+          const foundUserComment = commentsData.find(comment => comment.userId === currentUserId);
           setUserComment(foundUserComment || null);
         }
       } catch (err) {
@@ -81,7 +83,7 @@ export default function ProductDetail() {
     };
 
     fetchComments();
-  }, [id, session, refreshCommentsKey]);
+  }, [id, refreshCommentsKey, currentUserId]);
 
   const handleAddToCart = async () => {
     if (!session) {
@@ -132,6 +134,52 @@ export default function ProductDetail() {
   const handleCommentAdded = () => {
       setRefreshCommentsKey(prevKey => prevKey + 1);
       setIsEditingComment(false);
+  };
+
+  const handleLikeComment = async (commentUserId: number, commentProductId: number) => {
+    if (!currentUserId) {
+      setMessage({ text: 'Please log in to like comments.', type: 'error' });
+      return;
+    }
+    try {
+      const response = await fetch('/api/likes/likes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          commentUserId: commentUserId,
+          commentProductId: commentProductId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setMessage({ text: data.error || 'Failed to update like.', type: 'error' });
+        return;
+      }
+      
+      setAllComments(prevComments => 
+        prevComments.map(comment => {
+          if (comment.userId === commentUserId && comment.productId === commentProductId) {
+            return {
+              ...comment,
+              getLiked: data.getLiked,
+              currentUserLiked: data.isLiked,
+            };
+          }
+          return comment;
+        })
+      );
+      if (userComment && userComment.userId === commentUserId && userComment.productId === commentProductId) {
+        setUserComment(prev => prev ? { ...prev, getLiked: data.getLiked, currentUserLiked: data.isLiked } : null);
+      }
+
+    } catch (error) {
+      console.error('Error liking comment:', error);
+      setMessage({ text: 'An error occurred while liking the comment.', type: 'error' });
+    }
   };
 
   if (!product) {
@@ -264,6 +312,8 @@ export default function ProductDetail() {
 
                   <CommentTableForProduct 
                     comments={allComments}
+                    onLikeComment={handleLikeComment}
+                    currentUserId={currentUserId}
                   />
                 </>
               )}

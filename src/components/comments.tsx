@@ -38,9 +38,11 @@ interface CommentsProps {
   isSellerView?: boolean; // To conditionally show reply button
   // Function to handle opening reply modal/form
   onInitiateReply?: (commentUserId: number, commentProductId: number) => void;
+  onLikeComment: (commentUserId: number, commentProductId: number) => Promise<void>;
+  currentUserId: number | null;
 }
 
-const Comments: React.FC<CommentsProps> = ({ comments, isSellerView = false, onInitiateReply }) => {
+const Comments: React.FC<CommentsProps> = ({ comments, isSellerView = false, onInitiateReply, onLikeComment, currentUserId }) => {
   // Removed useState for comments, isLoading, error
   // Removed useEffect for fetching
 
@@ -89,16 +91,32 @@ const Comments: React.FC<CommentsProps> = ({ comments, isSellerView = false, onI
                       <Image src={comment.photo} alt="Comment attachment" width={100} height={100} className="rounded" />
                   </div>
               )}
-              {/* Optional: Like display placeholder */}
-              {/* <p className="text-xs text-gray-500 mt-1">Likes: {comment.getLiked ?? 0}</p> */}
-              {isSellerView && onInitiateReply && (
-                <button
-                  onClick={() => onInitiateReply(comment.userId, comment.productId)}
-                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-semibold"
-                >
-                  Give Reply
-                </button>
-              )}
+              <div className="flex items-center mt-2 space-x-4">
+                {currentUserId && (
+                  <button
+                    onClick={() => onLikeComment(comment.userId, comment.productId)}
+                    className={`text-xs font-semibold flex items-center space-x-1 ${comment.currentUserLiked ? 'text-red-500' : 'text-gray-500 hover:text-red-400'}`}
+                    title={comment.currentUserLiked ? "Unlike" : "Like"}
+                  >
+                    <span>{comment.currentUserLiked ? '❤' : '♡'}</span>
+                    <span>{comment.getLiked || 0}</span>
+                  </button>
+                )}
+                {!currentUserId && comment.getLiked !== undefined && (
+                   <span className="text-xs text-gray-500 flex items-center space-x-1">
+                       <span>♡</span>
+                       <span>{comment.getLiked || 0}</span>
+                   </span>
+                )}
+                 {isSellerView && onInitiateReply && (
+                    <button
+                      onClick={() => onInitiateReply(comment.userId, comment.productId)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-semibold"
+                    >
+                      Give Reply
+                    </button>
+                  )}
+              </div>
             </div>
           </div>
           {/* Display replies if they exist */}

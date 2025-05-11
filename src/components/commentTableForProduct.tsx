@@ -16,9 +16,8 @@ interface CommentTableForProductProps {
 const CommentTableForProduct: React.FC<CommentTableForProductProps> = ({ comments, isSellerView, onInitiateReply, onLikeComment, currentUserId }) => {
   // Basic structure, you can add more layout, headers, etc.
   return (
-    <div className="mt-8 p-4 border-t">
-      <h3 className="text-xl font-semibold mb-4">Product Reviews</h3>
-      {/* Pass the received comments array and new props to the Comments component */}
+    <div className="mt-8">
+      <h3 className="text-2xl font-bold text-gray-900 mb-6">Product Reviews</h3>
       <Comments 
         comments={comments} 
         isSellerView={isSellerView} 

@@ -224,84 +224,115 @@ export default function ProductDetail() {
 
   // PAGE
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar onExpand={setIsSidebarExpanded} />
       <div className={`flex-1 ${isSidebarExpanded ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="relative h-96">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+              {/* Product Image Section */}
+              <div className="relative h-[500px] bg-gray-100 rounded-xl overflow-hidden">
                 <Image
                   src={product.imageURL || '/default-product.png'}
                   alt={product.title}
                   fill
-                  className="object-contain rounded-lg"
+                  className="object-contain hover:scale-105 transition-transform duration-300"
+                  priority
                 />
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <h1 className="text-3xl font-bold">{product.title}</h1>
-                  <div className="flex items-center space-x-2 px-3 py-1 rounded">
-                    <span className="text-yellow-500 font-semibold text-lg">
-                      {calculateAverageRating(allComments)}
-                    </span>
-                    <span className="text-yellow-500 text-2xl">★</span>
-                    <span className="text-gray-600 text-sm ml-1">
-                      ({allComments.length} reviews)
-                    </span>
+
+              {/* Product Details Section */}
+              <div className="space-y-6">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-start">
+                    <h1 className="text-4xl font-bold text-gray-900">{product.title}</h1>
+                    <div className="flex items-center space-x-2 bg-yellow-50 px-9 py-3 rounded-full">
+                      <span className="text-yellow-600 font-semibold text-xl">
+                        {calculateAverageRating(allComments)}
+                      </span>
+                      <span className="text-yellow-500 text-2xl inline-flex items-center">★</span>
+                      <span className="text-gray-600 text-sm inline-flex items-center whitespace-nowrap">
+                        ({allComments.length} reviews)
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className="text-3xl font-bold text-blue-600">${product.price}</span>
+                    {product.amount > 0 && (
+                      <span className="text-green-600 text-sm font-medium bg-green-50 px-3 py-1 rounded-full">
+                        In Stock ({product.amount} available)
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-gray-700 text-lg leading-relaxed">{product.description}</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      <span className="text-gray-700">{product.category.name}</span>
+                    </div>
                   </div>
                 </div>
-                <p className="text-gray-600">{product.description}</p>
-                <p className="text-lg font-medium">${product.price}</p>
-                <p className="text-gray-600">Quantity: {product.amount}</p>
-                <p className="text-gray-600">Category: {product.category.name}</p>
               </div>
             </div>
 
-            {session && userComment && !isEditingComment && <hr className="my-6"/>}
-
-              {!commentsLoading && !commentsError && product && 
-                <CommentTableForProduct 
-                  comments={allComments.filter(c => c.userId !== Number(session?.user?.id || 0))}
-                  isSellerView={hasAccess === true}
-                  onInitiateReply={handleInitiateReply}
-                />
-              }
-            
+            {/* Reviews Section */}
+            <div className="border-t border-gray-200 mt-8">
+              <div className="p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+                {!commentsLoading && !commentsError && product && (
+                  <CommentTableForProduct 
+                    comments={allComments.filter(c => c.userId !== Number(session?.user?.id || 0))}
+                    isSellerView={hasAccess === true}
+                    onInitiateReply={handleInitiateReply}
+                    onLikeComment={async () => Promise.resolve()}
+                    currentUserId={session?.user?.id ? Number(session.user.id) : 0}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         </div>
         {session && <UserInfo session={session} />}
       </div>
 
-      {/* Reply Modal - Basic Implementation */}
+      {/* Reply Modal - Enhanced Design */}
       {showReplyModal && replyingToComment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
-            <h3 className="text-xl font-semibold mb-4">Reply to Comment</h3>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Reply to Comment</h3>
             <textarea
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               placeholder="Write your reply..."
-              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows={4}
               maxLength={500}
             />
-            {replyError && <p className="text-sm text-red-600 mt-2">{replyError}</p>}
-            <div className="mt-4 flex justify-end space-x-3">
+            {replyError && (
+              <p className="text-sm text-red-600 mt-2 bg-red-50 p-2 rounded-lg">{replyError}</p>
+            )}
+            <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={() => {
                   setShowReplyModal(false);
                   setReplyingToComment(null);
                   setReplyError(null);
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                 disabled={isSubmittingReply}
               >
                 Cancel
               </button>
               <button
                 onClick={handleReplySubmit}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
                 disabled={isSubmittingReply || !replyText.trim()}
               >
                 {isSubmittingReply ? <LoadingSpinner /> : "Submit Reply"}

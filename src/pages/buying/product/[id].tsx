@@ -191,132 +191,174 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar onExpand={setIsSidebarExpanded} />
       <div className={`flex-1 ${isSidebarExpanded ? 'ml-64' : 'ml-20'} transition-all duration-300`}>
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="relative h-96">
+          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+              {/* Product Image Section */}
+              <div className="relative h-[500px] bg-gray-100 rounded-xl overflow-hidden">
                 <Image
                   src={product.imageURL || '/default-product.png'}
                   alt={product.title}
                   fill
-                  className="object-contain rounded-lg"
+                  className="object-contain hover:scale-105 transition-transform duration-300"
+                  priority
                 />
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <h1 className="text-3xl font-bold">{product.title}</h1>
-                  <div className="flex items-center space-x-2 px-3 py-1 rounded">
-                    <span className="text-yellow-500 font-semibold text-lg">
-                      {calculateAverageRating(allComments)}
-                    </span>
-                    <span className="text-yellow-500 text-2xl">★</span>
-                    <span className="text-gray-600 text-sm ml-1">
-                      ({allComments.length} reviews)
-                    </span>
-                  </div>
-                </div>
-                <p className="text-gray-600">{product.description}</p>
-                <p className="text-lg font-medium">${product.price}</p>
-                <p className="text-gray-600">Quantity: {product.amount}</p>
-                <p className="text-gray-600">Category: {product.category.name}</p>
 
-                <div className="flex items-center space-x-2">
-                  <label htmlFor="quantity" className="text-gray-700">Quantity:</label>
-                  <div className="flex items-center border rounded-md">
+              {/* Product Details Section */}
+              <div className="space-y-6">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex justify-between items-start">
+                    <h1 className="text-4xl font-bold text-gray-900">{product.title}</h1>
+                    <div className="flex items-center space-x-2 bg-yellow-50 px-9 py-3 rounded-full">
+                      <span className="text-yellow-600 font-semibold text-xl">
+                        {calculateAverageRating(allComments)}
+                      </span>
+                      <span className="text-yellow-500 text-2xl inline-flex items-center">★</span>
+                      <span className="text-gray-600 text-sm inline-flex items-center whitespace-nowrap">
+                        ({allComments.length} reviews)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-4">
+                    <span className="text-3xl font-bold text-blue-600">${product.price}</span>
+                    {product.amount > 0 ? (
+                      <span className="text-green-600 text-sm font-medium bg-green-50 px-3 py-1 rounded-full">
+                        In Stock ({product.amount} available)
+                      </span>
+                    ) : (
+                      <span className="text-red-600 text-sm font-medium bg-red-50 px-3 py-1 rounded-full">
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-gray-700 text-lg leading-relaxed">{product.description}</p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-4 pt-4">
+                    <div className="flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg">
+                      <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      <span className="text-gray-700">{product.category.name}</span>
+                    </div>
+                  </div>
+
+                  {/* Quantity Selector */}
+                  <div className="border-t border-gray-200 pt-6">
+                    <div className="flex items-center space-x-4">
+                      <label htmlFor="quantity" className="text-gray-700 font-medium">Quantity:</label>
+                      <div className="flex items-center border rounded-lg overflow-hidden">
+                        <button
+                          onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                          className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                          disabled={quantity <= 1}
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          id="quantity"
+                          value={quantity}
+                          onChange={(e) => {
+                            const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
+                            setQuantity(value);
+                          }}
+                          min="1"
+                          max={product.amount}
+                          className="w-20 text-center border-x px-4 py-2 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <button
+                          onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
+                          className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                          disabled={quantity >= product.amount}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        (Max: {product.amount})
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Add to Cart Button */}
+                  <div className="pt-4">
                     <button
-                      onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                      className="px-3 py-1 hover:bg-gray-100"
-                      disabled={quantity <= 1}
+                      onClick={handleAddToCart}
+                      disabled={isAddingToCart || product.amount === 0}
+                      className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed font-medium text-lg"
                     >
-                      -
-                    </button>
-                    <input
-                      type="number"
-                      id="quantity"
-                      value={quantity}
-                      onChange={(e) => {
-                        const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
-                        setQuantity(value);
-                      }}
-                      min="1"
-                      max={product.amount}
-                      className="w-16 text-center border-x px-2 py-1 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    />
-                    <button
-                      onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
-                      className="px-3 py-1 hover:bg-gray-100"
-                      disabled={quantity >= product.amount}
-                    >
-                      +
+                      {isAddingToCart ? "Adding..." : "Add to Cart"}
                     </button>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    (Max: {product.amount})
-                  </span>
-                </div>
 
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart || product.amount === 0}
-                    className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors disabled:bg-green-300 disabled:cursor-not-allowed"
-                  >
-                    {isAddingToCart ? "Adding..." : "Add to Cart"}
-                  </button>
+                  {message && (
+                    <div className={`p-4 rounded-xl ${
+                      message.type === 'success' 
+                        ? 'bg-green-50 text-green-700 border border-green-200' 
+                        : 'bg-red-50 text-red-700 border border-red-200'
+                    }`}>
+                      {message.text}
+                    </div>
+                  )}
                 </div>
-
-                {message && (
-                  <div className={`p-4 rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {message.text}
-                  </div>
-                )}
               </div>
             </div>
 
-            <div className="mt-8 p-4 border-t space-y-4">
-              {commentsLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <LoadingSpinner />
-                </div>
-              ) : commentsError ? (
-                <div className="text-center p-4 text-red-600">Error loading comments: {commentsError}</div>
-              ) : (
-                <>
-                  {session && (
-                    userComment && !isEditingComment ? (
-                      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex justify-between items-center">
-                        <p className="text-sm text-gray-700">You've commented on this product. Your comment is shown below. Want to change it?</p>
-                        <button
-                          onClick={() => setIsEditingComment(true)}
-                          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md text-sm whitespace-nowrap"
-                        >
-                          Edit Your Comment
-                        </button>
-                      </div>
-                    ) : (isEditingComment || !userComment) ? (
-                      <div className="bg-white mb-4">
-                        <AddComment 
-                          productId={product.productID} 
-                          onCommentAdded={handleCommentAdded}
-                          initialComment={isEditingComment ? userComment : null}
-                        />
-                      </div>
-                    ) : null
-                  )}
-                  {!session && (
-                     <p className="text-center text-gray-600 my-4 p-6 border rounded-lg shadow-md bg-white">Please log in to leave a comment.</p>
-                  )}
+            {/* Reviews Section */}
+            <div className="border-t border-gray-200 mt-8">
+              <div className="p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+                {commentsLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <LoadingSpinner />
+                  </div>
+                ) : commentsError ? (
+                  <div className="text-center p-4 text-red-600 bg-red-50 rounded-xl">Error loading comments: {commentsError}</div>
+                ) : (
+                  <>
+                    {session && (
+                      userComment && !isEditingComment ? (
+                        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex justify-between items-center">
+                          <p className="text-gray-700">You've commented on this product. Your comment is shown below. Want to change it?</p>
+                          <button
+                            onClick={() => setIsEditingComment(true)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm whitespace-nowrap transition-colors"
+                          >
+                            Edit Your Comment
+                          </button>
+                        </div>
+                      ) : (isEditingComment || !userComment) ? (
+                        <div className="bg-white mb-6">
+                          <AddComment 
+                            productId={product.productID} 
+                            onCommentAdded={handleCommentAdded}
+                            initialComment={isEditingComment ? userComment : null}
+                          />
+                        </div>
+                      ) : null
+                    )}
+                    {!session && (
+                      <p className="text-center text-gray-600 my-4 p-6 border rounded-xl shadow-sm bg-gray-50">
+                        Please log in to leave a comment.
+                      </p>
+                    )}
 
-                  <CommentTableForProduct 
-                    comments={allComments}
-                    onLikeComment={handleLikeComment}
-                    currentUserId={currentUserId}
-                  />
-                </>
-              )}
+                    <CommentTableForProduct 
+                      comments={allComments}
+                      onLikeComment={handleLikeComment}
+                      currentUserId={currentUserId}
+                    />
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>

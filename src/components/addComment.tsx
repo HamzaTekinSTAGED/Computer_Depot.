@@ -82,18 +82,22 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
   const isEditing = !!initialComment;
 
   return (
-    <div className={`mt-8 p-6 border rounded-lg shadow-md ${isEditing ? 'bg-blue-50 border-blue-200' : 'bg-white'}`}>
-      <h3 className="text-xl font-semibold mb-4">{isEditing ? 'Update Your Comment' : 'Leave a Comment'}</h3>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className={`mt-8 p-6 border rounded-xl shadow-sm ${isEditing ? 'bg-blue-50 border-blue-200' : 'bg-white'}`}>
+      <h3 className="text-2xl font-bold text-gray-900 mb-6">{isEditing ? 'Update Your Comment' : 'Leave a Comment'}</h3>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="star" className="block text-sm font-medium text-gray-700 mb-1">Rating:</label>
-          <div className="flex space-x-1">
+          <label htmlFor="star" className="block text-lg font-medium text-gray-700 mb-2">Rating:</label>
+          <div className="flex space-x-2">
             {[1, 2, 3, 4, 5].map((s) => (
               <button
                 key={s}
                 type="button"
                 onClick={() => setStar(s)}
-                className={`p-2 rounded-full text-xl transition-colors ${star >= s ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-300'}`}
+                className={`p-2 rounded-full text-2xl transition-all transform hover:scale-110 ${
+                  star >= s 
+                    ? 'text-yellow-400 hover:text-yellow-500' 
+                    : 'text-gray-300 hover:text-yellow-300'
+                }`}
                 aria-label={`Rate ${s} out of 5 stars`}
               >
                 ★
@@ -103,21 +107,25 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
         </div>
 
         <div>
-          <label htmlFor="comment" className="block text-sm font-medium text-gray-700">Comment (Optional):</label>
+          <label htmlFor="comment" className="block text-lg font-medium text-gray-700 mb-2">Comment (Optional):</label>
           <textarea
             id="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={4}
             maxLength={200}
-            className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-xl border-2 border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-base p-4 transition-colors"
             placeholder="Share your thoughts about the product..."
           />
-          <p className="text-sm text-gray-500 mt-1 text-right">{comment.length}/200</p>
+          <p className="text-sm text-gray-500 mt-2 text-right">{comment.length}/200</p>
         </div>
 
         {message && (
-          <div className={`p-3 rounded-md text-sm ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          <div className={`p-4 rounded-xl text-sm ${
+            message.type === 'success' 
+              ? 'bg-green-50 text-green-800 border border-green-200' 
+              : 'bg-red-50 text-red-800 border border-red-200'
+          }`}>
             {message.text}
           </div>
         )}
@@ -125,7 +133,7 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl hover:bg-blue-700 transition-all transform hover:scale-[1.02] disabled:bg-blue-300 disabled:cursor-not-allowed flex items-center justify-center text-lg font-medium"
         >
           {isLoading ? (
             <>

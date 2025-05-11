@@ -94,7 +94,7 @@ model Category {
 model Product {
   productID      Int       @id @default(autoincrement())
   title          String
-  description    String
+  description    String    @db.LongText
   price          Float
   amount         Int       @default(1)
   maxBuyAmount   Int       @default(1) @db.UnsignedInt

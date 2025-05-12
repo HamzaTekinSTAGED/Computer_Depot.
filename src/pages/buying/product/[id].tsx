@@ -67,10 +67,36 @@ export default function ProductDetail() {
           throw new Error(errorData.error || 'Failed to fetch comments');
         }
         const commentsData: CommentData[] = await response.json();
-        setAllComments(commentsData);
+
+        // Beğeni durumlarını güncelle
+        const updatedComments = await Promise.all(commentsData.map(async (comment) => {
+          try {
+            // Her yorum için beğeni durumunu kontrol et
+            const likeResponse = await fetch(`/api/likes/check?commentUserId=${comment.userId}&commentProductId=${comment.productId}`);
+            if (!likeResponse.ok) {
+              throw new Error('Failed to check like status');
+            }
+            const likeData = await likeResponse.json();
+
+            return {
+              ...comment,
+              currentUserLiked: likeData.isLiked || false,
+              getLiked: comment.getLiked || 0
+            };
+          } catch (error) {
+            console.error('Error checking like status:', error);
+            return {
+              ...comment,
+              currentUserLiked: false,
+              getLiked: comment.getLiked || 0
+            };
+          }
+        }));
+
+        setAllComments(updatedComments);
 
         if (currentUserId) {
-          const foundUserComment = commentsData.find(comment => comment.userId === currentUserId);
+          const foundUserComment = updatedComments.find(comment => comment.userId === currentUserId);
           setUserComment(foundUserComment || null);
         }
       } catch (err) {
@@ -109,16 +135,16 @@ export default function ProductDetail() {
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage({ 
-          text: data.error || 'Failed to add to cart', 
-          type: 'error' 
+        setMessage({
+          text: data.error || 'Failed to add to cart',
+          type: 'error'
         });
         return;
       }
 
-      setMessage({ 
-        text: 'Product added to cart successfully', 
-        type: 'success' 
+      setMessage({
+        text: 'Product added to cart successfully',
+        type: 'success'
       });
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -132,8 +158,8 @@ export default function ProductDetail() {
   };
 
   const handleCommentAdded = () => {
-      setRefreshCommentsKey(prevKey => prevKey + 1);
-      setIsEditingComment(false);
+    setRefreshCommentsKey(prevKey => prevKey + 1);
+    setIsEditingComment(false);
   };
 
   const handleLikeComment = async (commentUserId: number, commentProductId: number) => {
@@ -151,34 +177,45 @@ export default function ProductDetail() {
           commentUserId: commentUserId,
           commentProductId: commentProductId,
         }),
+        credentials: 'include'
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage({ text: data.error || 'Failed to update like.', type: 'error' });
+        setMessage({ text: data.message || 'Error updating like.', type: 'error' });
         return;
       }
-      
-      setAllComments(prevComments => 
+
+      setAllComments(prevComments =>
         prevComments.map(comment => {
           if (comment.userId === commentUserId && comment.productId === commentProductId) {
             return {
               ...comment,
-              getLiked: data.getLiked,
               currentUserLiked: data.isLiked,
+              getLiked: data.action === 'added' ? (comment.getLiked || 0) + 1 : (comment.getLiked || 0) - 1
             };
           }
           return comment;
         })
       );
+
       if (userComment && userComment.userId === commentUserId && userComment.productId === commentProductId) {
-        setUserComment(prev => prev ? { ...prev, getLiked: data.getLiked, currentUserLiked: data.isLiked } : null);
+        setUserComment(prev => prev ? {
+          ...prev,
+          currentUserLiked: data.isLiked,
+          getLiked: data.action === 'added' ? (prev.getLiked || 0) + 1 : (prev.getLiked || 0) - 1
+        } : null);
       }
 
+      setMessage({
+        text: data.message,
+        type: 'success'
+      });
+
     } catch (error) {
-      console.error('Error liking comment:', error);
-      setMessage({ text: 'An error occurred while liking the comment.', type: 'error' });
+      console.error('Like error:', error);
+      setMessage({ text: 'An error occurred while processing like.', type: 'error' });
     }
   };
 
@@ -300,11 +337,10 @@ export default function ProductDetail() {
                   </div>
 
                   {message && (
-                    <div className={`p-4 rounded-xl ${
-                      message.type === 'success' 
-                        ? 'bg-green-50 text-green-700 border border-green-200' 
-                        : 'bg-red-50 text-red-700 border border-red-200'
-                    }`}>
+                    <div className={`p-4 rounded-xl ${message.type === 'success'
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : 'bg-red-50 text-red-700 border border-red-200'
+                      }`}>
                       {message.text}
                     </div>
                   )}
@@ -337,8 +373,8 @@ export default function ProductDetail() {
                         </div>
                       ) : (isEditingComment || !userComment) ? (
                         <div className="bg-white mb-6">
-                          <AddComment 
-                            productId={product.productID} 
+                          <AddComment
+                            productId={product.productID}
                             onCommentAdded={handleCommentAdded}
                             initialComment={isEditingComment ? userComment : null}
                           />
@@ -351,7 +387,7 @@ export default function ProductDetail() {
                       </p>
                     )}
 
-                    <CommentTableForProduct 
+                    <CommentTableForProduct
                       comments={allComments}
                       onLikeComment={handleLikeComment}
                       currentUserId={currentUserId}

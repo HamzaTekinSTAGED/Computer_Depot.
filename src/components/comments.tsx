@@ -54,7 +54,7 @@ const Comments: React.FC<CommentsProps> = ({ comments, isSellerView = false, onI
   // if (!comments) {
   //   return <div className="text-center p-4">Loading comments...</div>;
   // }
-  
+
   // Parent component should handle error state
 
   if (comments.length === 0) {
@@ -90,12 +90,12 @@ const Comments: React.FC<CommentsProps> = ({ comments, isSellerView = false, onI
               <p className="text-base text-gray-700 mt-2">{comment.comment || <i>No comment text provided.</i>}</p>
               {comment.photo && (
                 <div className="mt-3">
-                  <Image 
-                    src={comment.photo} 
-                    alt="Comment attachment" 
-                    width={120} 
-                    height={120} 
-                    className="rounded-lg object-cover" 
+                  <Image
+                    src={comment.photo}
+                    alt="Comment attachment"
+                    width={120}
+                    height={120}
+                    className="rounded-lg object-cover"
                   />
                 </div>
               )}
@@ -103,11 +103,10 @@ const Comments: React.FC<CommentsProps> = ({ comments, isSellerView = false, onI
                 {currentUserId && (
                   <button
                     onClick={() => onLikeComment(comment.userId, comment.productId)}
-                    className={`text-sm font-medium flex items-center space-x-2 transition-colors ${
-                      comment.currentUserLiked 
-                        ? 'text-red-500 hover:text-red-600' 
+                    className={`text-sm font-medium flex items-center space-x-2 transition-colors ${comment.currentUserLiked
+                        ? 'text-red-500 hover:text-red-600'
                         : 'text-gray-500 hover:text-red-400'
-                    }`}
+                      }`}
                     title={comment.currentUserLiked ? "Unlike" : "Like"}
                   >
                     <span className="text-lg">{comment.currentUserLiked ? '❤' : '♡'}</span>

@@ -18,13 +18,13 @@ const CommentTableForProduct: React.FC<CommentTableForProductProps> = ({ comment
   return (
     <div className="mt-8">
       <h3 className="text-2xl font-bold text-gray-900 mb-6">Product Reviews</h3>
-      <Comments 
-        comments={comments} 
-        isSellerView={isSellerView} 
-        onInitiateReply={onInitiateReply} 
+      <Comments
+        comments={comments}
+        isSellerView={isSellerView}
+        onInitiateReply={onInitiateReply}
         onLikeComment={onLikeComment}
         currentUserId={currentUserId}
-      /> 
+      />
     </div>
   );
 };

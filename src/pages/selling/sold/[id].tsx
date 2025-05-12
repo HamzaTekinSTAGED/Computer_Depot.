@@ -7,7 +7,7 @@ import Sidebar from "../../../components/sidebar";
 import UserInfo from "../../../components/UserInfo";
 import Image from "next/image";
 import CommentTableForProduct from "../../../components/commentTableForProduct";
-import {checkIfUserIsSellerOfProduct} from "../../../utils/accessControl";
+import { checkIfUserIsSellerOfProduct } from "../../../utils/accessControl";
 import { CommentData, ReplyData } from "../../../types";
 import LoadingSpinner from "../../../components/loading";
 import { Product } from "../../../types";
@@ -16,7 +16,7 @@ export default function ProductDetail() {
   const router = useRouter();
   const { id } = router.query;
   const { data: session } = useSession();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [allComments, setAllComments] = useState<CommentData[]>([]);
@@ -38,9 +38,9 @@ export default function ProductDetail() {
   // To check if the user really the seller of the product
   useEffect(() => {
     if (!id || Array.isArray(id) || !session?.user?.id) {
-        setHasAccess(false);
-        setIsAccessChecking(false);
-        return;
+      setHasAccess(false);
+      setIsAccessChecking(false);
+      return;
     }
 
     setIsAccessChecking(true);
@@ -159,17 +159,17 @@ export default function ProductDetail() {
 
       const newReply: ReplyData = await response.json();
 
-      setAllComments(prevComments => 
-        prevComments.map(comment => 
+      setAllComments(prevComments =>
+        prevComments.map(comment =>
           comment.userId === replyingToComment.userId && comment.productId === replyingToComment.productId
-            ? { 
-                ...comment, 
-                replies: [...(comment.replies || []), newReply] 
-              }
+            ? {
+              ...comment,
+              replies: [...(comment.replies || []), newReply]
+            }
             : comment
         )
       );
-      
+
       setShowReplyModal(false);
       setReplyingToComment(null);
       setReplyText("");
@@ -208,9 +208,9 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="flex h-screen relative justify-center items-center">
-         <p className="text-xl text-red-600 font-semibold">
-           Could not load product details.
-         </p>
+        <p className="text-xl text-red-600 font-semibold">
+          Could not load product details.
+        </p>
       </div>
     );
   }
@@ -256,7 +256,7 @@ export default function ProductDetail() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-4">
                     <span className="text-3xl font-bold text-blue-600">${product.price}</span>
                     {product.amount > 0 && (
@@ -287,7 +287,7 @@ export default function ProductDetail() {
               <div className="p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
                 {!commentsLoading && !commentsError && product && (
-                  <CommentTableForProduct 
+                  <CommentTableForProduct
                     comments={allComments.filter(c => c.userId !== Number(session?.user?.id || 0))}
                     isSellerView={hasAccess === true}
                     onInitiateReply={handleInitiateReply}

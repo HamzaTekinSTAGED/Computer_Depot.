@@ -38,10 +38,10 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
       setMessage({ text: 'Please select a star rating between 1 and 5.', type: 'error' });
       return;
     }
-     if (comment.length > 200) {
-         setMessage({ text: 'Comment cannot exceed 200 characters.', type: 'error' });
-         return;
-     }
+    if (comment.length > 200) {
+      setMessage({ text: 'Comment cannot exceed 200 characters.', type: 'error' });
+      return;
+    }
 
     setIsLoading(true);
 
@@ -57,10 +57,12 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage({ text: data.error === 'You can only comment on products you have purchased.' 
-          ? 'You can only comment on products you have purchased.' 
-          : data.error || `Failed to ${initialComment ? 'update' : 'submit'} comment.`, 
-          type: 'error' });
+        setMessage({
+          text: data.error === 'You can only comment on products you have purchased.'
+            ? 'You can only comment on products you have purchased.'
+            : data.error || `Failed to ${initialComment ? 'update' : 'submit'} comment.`,
+          type: 'error'
+        });
       } else {
         setMessage({ text: `Comment ${initialComment ? 'updated' : 'submitted'} successfully!`, type: 'success' });
         if (onCommentAdded) {
@@ -93,11 +95,10 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
                 key={s}
                 type="button"
                 onClick={() => setStar(s)}
-                className={`p-2 rounded-full text-2xl transition-all transform hover:scale-110 ${
-                  star >= s 
-                    ? 'text-yellow-400 hover:text-yellow-500' 
+                className={`p-2 rounded-full text-2xl transition-all transform hover:scale-110 ${star >= s
+                    ? 'text-yellow-400 hover:text-yellow-500'
                     : 'text-gray-300 hover:text-yellow-300'
-                }`}
+                  }`}
                 aria-label={`Rate ${s} out of 5 stars`}
               >
                 ★
@@ -121,11 +122,10 @@ export default function AddComment({ productId, onCommentAdded, initialComment }
         </div>
 
         {message && (
-          <div className={`p-4 rounded-xl text-sm ${
-            message.type === 'success' 
-              ? 'bg-green-50 text-green-800 border border-green-200' 
+          <div className={`p-4 rounded-xl text-sm ${message.type === 'success'
+              ? 'bg-green-50 text-green-800 border border-green-200'
               : 'bg-red-50 text-red-800 border border-red-200'
-          }`}>
+            }`}>
             {message.text}
           </div>
         )}

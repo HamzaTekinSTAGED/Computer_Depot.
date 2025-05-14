@@ -181,8 +181,7 @@ export default function SellPage() {
         maxBuyAmount: maxBuyAmount,
         category: item.categoryID,
         imageURL: imageURL,
-        userID: parseInt(session.user.id),
-        isSold: false
+        userID: parseInt(session.user.id)
       };
 
       const response = await fetch('/api/products', {

@@ -67,8 +67,7 @@ export default async function handler(
           maxBuyAmount: parseInt(maxBuyAmount),
           categoryID: parseInt(category),
           imageURL: imageURL || "",
-          userID: parseInt(userID),
-          isSold: false
+          userID: parseInt(userID)
         },
         include: {
           user: {
@@ -115,8 +114,7 @@ export default async function handler(
         const updated = await db.product.update({
             where: { productID: productId },
             data: {
-                amount: newAmount,
-                isSold: false, // Keep isSold as false if amount > 0?
+                amount: newAmount
             },
         });
         return res.status(200).json(updated);

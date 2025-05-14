@@ -51,7 +51,7 @@ export default async function handler(
 
     // 3. Parse Body and Validate Data (already validated ID above)
     try {
-        const { title, description, price, amount, categoryID, imageURL, isSold } = req.body;
+        const { title, description, price, amount, categoryID, imageURL } = req.body;
 
         // Add more specific validation as needed
         if (typeof title !== 'string' || title.trim() === '' ||
@@ -59,8 +59,7 @@ export default async function handler(
             typeof price !== 'number' || price < 0 ||
             typeof amount !== 'number' || !Number.isInteger(amount) || amount < 0 ||
             typeof categoryID !== 'number' ||
-            (imageURL !== null && typeof imageURL !== 'string') ||
-            typeof isSold !== 'boolean') {
+            (imageURL !== null && typeof imageURL !== 'string')) {
             return res.status(400).json({ message: 'Invalid product data provided' });
         }
 
@@ -81,7 +80,6 @@ export default async function handler(
                 amount,
                 categoryID,
                 imageURL,
-                isSold,
             },
         });
 

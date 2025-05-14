@@ -56,7 +56,6 @@ export interface Product {
   price: number;
   amount: number;
   maxBuyAmount: number;
-  isSold: boolean;
   userID: number;
   productID: number;
   description: string;
@@ -97,7 +96,6 @@ export interface RawProduct {
   amount: number; // Added amount to interface
   category: string;
   imageURL: string;
-  isSold: boolean;
   publishingDate: Date;
   userID: number;
 }

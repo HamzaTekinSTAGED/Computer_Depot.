@@ -124,8 +124,7 @@ export default function ProductList() {
         if (product.productID === productId) {
           return {
             ...product,
-            amount: product.amount - 1,
-            isSold: product.amount - 1 === 0
+            amount: product.amount - 1
           };
         }
         return product;
@@ -134,8 +133,7 @@ export default function ProductList() {
         if (product.productID === productId) {
           return {
             ...product,
-            amount: product.amount - 1,
-            isSold: product.amount - 1 === 0
+            amount: product.amount - 1
           };
         }
         return product;

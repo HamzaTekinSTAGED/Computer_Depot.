@@ -76,8 +76,8 @@ export default async function handler(
         return res.status(404).json({ error: "Product not found" });
       }
 
-      if (product.isSold || product.amount < amount) { // Check available amount
-        return res.status(400).json({ error: "Product is already sold or insufficient stock" });
+      if (product.amount < amount) { // Check available amount
+        return res.status(400).json({ error: "Insufficient stock" });
       }
 
       if (product.userID === Number(session.user.id)) {
@@ -87,7 +87,6 @@ export default async function handler(
       // Create transaction to update product and create trade history
       const result = await db.$transaction([
         db.$executeRaw`UPDATE Product SET amount = amount - ${amount} WHERE productID = ${productId}`,
-        db.$executeRaw`UPDATE Product SET isSold = CASE WHEN amount - ${amount} = 0 THEN true ELSE false END WHERE productID = ${productId}`,
         db.tradeHistory.create({
           data: {
             buyerID: Number(session.user.id),
@@ -123,8 +122,8 @@ export default async function handler(
         }),
       ]);
 
-      // result[2] contains the created trade history
-      return res.status(200).json({ success: true, data: result[2] });
+      // result[1] contains the created trade history (since we removed the isSold update)
+      return res.status(200).json({ success: true, data: result[1] });
     } catch (error) {
       console.error("Purchase error:", error);
       return res.status(500).json({ error: "Internal server error" });

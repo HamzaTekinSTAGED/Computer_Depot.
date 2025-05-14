@@ -101,7 +101,6 @@ model Product {
   categoryID     Int
   category       Category  @relation(fields: [categoryID], references: [categoryID])
   imageURL       String?
-  isSold         Boolean   @default(false)
   publishingDate DateTime  @default(now())
 
   // User ilişkisi (Product sahibini belirtir)

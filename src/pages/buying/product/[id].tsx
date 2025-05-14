@@ -304,23 +304,23 @@ export default function ProductDetail() {
                           id="quantity"
                           value={quantity}
                           onChange={(e) => {
-                            const value = Math.max(1, Math.min(product.amount, Number(e.target.value)));
+                            const value = Math.max(1, Math.min(product.maxBuyAmount, Number(e.target.value)));
                             setQuantity(value);
                           }}
                           min="1"
-                          max={product.amount}
+                          max={product.maxBuyAmount}
                           className="w-20 text-center border-x px-4 py-2 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <button
-                          onClick={() => setQuantity(prev => Math.min(product.amount, prev + 1))}
+                          onClick={() => setQuantity(prev => Math.min(product.maxBuyAmount, prev + 1))}
                           className="px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-50"
-                          disabled={quantity >= product.amount}
+                          disabled={quantity >= product.maxBuyAmount}
                         >
                           +
                         </button>
                       </div>
                       <span className="text-sm text-gray-500">
-                        (Max: {product.amount})
+                        (Buy limit: {product.maxBuyAmount})
                       </span>
                     </div>
                   </div>

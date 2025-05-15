@@ -3,6 +3,7 @@
 import { forwardRef } from "react";
 import { useRouter } from "next/router";
 import { SlidingBarProps } from "@/types";
+import { FaShoppingBag, FaList, FaClipboardList, FaPlus } from "react-icons/fa";
 
 const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
   ({ activeTab, position, showBar, sidebarWidth, onMouseEnter, onMouseLeave }, ref) => {
@@ -32,6 +33,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
                   onClick={() => router.push("/buying/my-orders")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-blue-50 transition-all duration-200 group"
                 >
+                  <FaShoppingBag className="mr-3 text-gray-500 group-hover:text-blue-600 transition-colors duration-200" />
                   <span className="text-gray-600 group-hover:text-blue-600 transition-colors duration-200">
                     My Orders
                   </span>
@@ -42,6 +44,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
                   onClick={() => router.push("/buying/list-items")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-blue-50 transition-all duration-200 group"
                 >
+                  <FaList className="mr-3 text-gray-500 group-hover:text-blue-600 transition-colors duration-200" />
                   <span className="text-gray-600 group-hover:text-blue-600 transition-colors duration-200">
                     List Items
                   </span>
@@ -55,6 +58,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
                   onClick={() => router.push("/selling/sell-orders")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-green-50 transition-all duration-200 group"
                 >
+                  <FaClipboardList className="mr-3 text-gray-500 group-hover:text-green-600 transition-colors duration-200" />
                   <span className="text-gray-600 group-hover:text-green-600 transition-colors duration-200">
                     My Sell Orders
                   </span>
@@ -65,6 +69,7 @@ const SlidingBar = forwardRef<HTMLDivElement, SlidingBarProps>(
                   onClick={() => router.push("/selling/add-items")}
                   className="flex items-center w-full text-left py-3 px-4 rounded-lg hover:bg-green-50 transition-all duration-200 group"
                 >
+                  <FaPlus className="mr-3 text-gray-500 group-hover:text-green-600 transition-colors duration-200" />
                   <span className="text-gray-600 group-hover:text-green-600 transition-colors duration-200">
                     Add Items
                   </span>

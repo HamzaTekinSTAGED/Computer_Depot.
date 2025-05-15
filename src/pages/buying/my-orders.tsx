@@ -92,40 +92,42 @@ const MyOrdersPage = () => {
   }, [session?.user?.id]);
 
   return (
-    <div className="flex h-screen relative">
-      <Sidebar onExpand={setIsSidebarExpanded} />
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"} overflow-y-auto`}>
-        {isLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <div className="p-6 md:p-10 max-w-7xl mx-auto">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-8 md:mb-12">
-              My Orders
-            </h1>
+    <div className="min-h-screen flex flex-col">
+      <div className="flex flex-1 relative">
+        <Sidebar onExpand={setIsSidebarExpanded} />
+        <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"} overflow-y-auto`}>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            <div className="p-6 md:p-10 max-w-7xl mx-auto">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-8 md:mb-12">
+                My Orders
+              </h1>
 
-            {/* Trade History List */}
-            {tradeHistory.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tradeHistory.map((trade) => (
-                  <MemoizedTradeItem key={trade.id} trade={trade} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-xl text-gray-500">
-                  No purchase history found.
-                </p>
-                <Link href="/buying/list-items" legacyBehavior>
-                  <a className="mt-4 inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-md transition duration-150 ease-in-out">
-                    Browse Products
-                  </a>
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
+              {/* Trade History List */}
+              {tradeHistory.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {tradeHistory.map((trade) => (
+                    <MemoizedTradeItem key={trade.id} trade={trade} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-xl text-gray-500">
+                    No purchase history found.
+                  </p>
+                  <Link href="/buying/list-items" legacyBehavior>
+                    <a className="mt-4 inline-block bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-md transition duration-150 ease-in-out">
+                      Browse Products
+                    </a>
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       {session && <UserInfo session={session} />}
     </div>

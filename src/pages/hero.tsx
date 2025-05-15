@@ -21,27 +21,29 @@ const HeroPage = () => {
   useRoleBasedRedirect(status, session, setIsLoading);
 
   return (
-    <div className="flex h-screen relative">
-      {/* Sidebar */}
-      <Sidebar onExpand={setIsSidebarExpanded} />
+    <div className="min-h-screen flex flex-col">
+      <div className="flex flex-1 relative">
+        {/* Sidebar */}
+        <Sidebar onExpand={setIsSidebarExpanded} />
 
-      {/* Main Content */}
-      <main className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-[304px]' : 'ml-20'}`}>
-        {(status === "loading" || isLoading) ? (
-          <div className="flex justify-center items-center h-full">
-            <LoadingSpinner />
-          </div>
-        ) : session ? (
-          <div className="flex flex-col items-center justify-center text-center h-full">
-            <h1 className="text-4xl font-bold">
-              Find, best tech equipment - quickly and easily!
-            </h1>
-          </div>
-        ) : null}
-      </main>
+        {/* Main Content */}
+        <main className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-[304px]' : 'ml-20'}`}>
+          {(status === "loading" || isLoading) ? (
+            <div className="flex justify-center items-center h-full">
+              <LoadingSpinner />
+            </div>
+          ) : session ? (
+            <div className="flex flex-col items-center justify-center text-center h-full">
+              <h1 className="text-4xl font-bold">
+                Find, best tech equipment - quickly and easily!
+              </h1>
+            </div>
+          ) : null}
+        </main>
 
-      {/* User Info */}
-      {session && <UserInfo session={session} />}
+        {/* User Info */}
+        {session && <UserInfo session={session} />}
+      </div>
     </div>
   );
 };

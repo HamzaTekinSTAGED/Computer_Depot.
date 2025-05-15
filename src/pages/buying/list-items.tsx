@@ -148,93 +148,95 @@ export default function ProductList() {
   };
 
   return (
-    <div className="flex h-screen relative">
-      <Sidebar onExpand={setIsSidebarExpanded} />
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
-        {isLoading ? (
-          <div className="flex justify-center items-center h-full">
-            <LoadingSpinner />
-          </div>
-        ) : (
-          <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-4xl font-semibold text-center mb-6">Products List</h1>
-            
-            {/* Filtreleme Alanı */}
-            <div className="mb-6 flex gap-4">
-              <select
-                className="p-2 border rounded"
-                value={selectedCategoryId}
-                onChange={(e) => setSelectedCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat.categoryID} value={cat.categoryID}>{cat.name}</option>
-                ))}
-              </select>
+    <div className="min-h-screen flex flex-col">
+      <div className="flex flex-1 relative">
+        <Sidebar onExpand={setIsSidebarExpanded} />
+        <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-full">
+              <LoadingSpinner />
             </div>
-            
-            {/* Ürün Listesi */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map((product, index) => (
-                  <div 
-                    key={index} 
-                    className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                    onClick={() => handleProductClick(product)}
-                  >
-                    {product.imageURL && (
-                      <div className="relative w-full h-48">
-                        <Image
-                          src={product.imageURL}
-                          alt={product.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                      </div>
-                    )}
-                    <div className="p-6">
-                      <div className="flex justify-between items-start">
-                        <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
-                        <div className="flex items-center space-x-1 px-2 py-1 rounded-full">
-                          <span className="text-yellow-500 font-semibold text-lg">
-                            {calculateAverageRating(product.comments)}
-                          </span>
-                          <span className="text-yellow-500 text-2xl">★</span>
-                          <span className="text-gray-600 text-sm">
-                            ({product.comments?.length || 0})
-                          </span>
-                        </div>
-                      </div>
-                      <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
-                      <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
-                      <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
-                      {product.amount === 0 && (
-                        <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-semibold">
-                          Sold Out
+          ) : (
+            <div className="p-6 max-w-7xl mx-auto">
+              <h1 className="text-4xl font-semibold text-center mb-6">Products List</h1>
+              
+              {/* Filtreleme Alanı */}
+              <div className="mb-6 flex gap-4">
+                <select
+                  className="p-2 border rounded"
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat.categoryID} value={cat.categoryID}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Ürün Listesi */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map((product, index) => (
+                    <div 
+                      key={index} 
+                      className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                      onClick={() => handleProductClick(product)}
+                    >
+                      {product.imageURL && (
+                        <div className="relative w-full h-48">
+                          <Image
+                            src={product.imageURL}
+                            alt={product.title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
                         </div>
                       )}
+                      <div className="p-6">
+                        <div className="flex justify-between items-start">
+                          <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
+                          <div className="flex items-center space-x-1 px-2 py-1 rounded-full">
+                            <span className="text-yellow-500 font-semibold text-lg">
+                              {calculateAverageRating(product.comments)}
+                            </span>
+                            <span className="text-yellow-500 text-2xl">★</span>
+                            <span className="text-gray-600 text-sm">
+                              ({product.comments?.length || 0})
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
+                        <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
+                        <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
+                        {product.amount === 0 && (
+                          <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-semibold">
+                            Sold Out
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-500 col-span-full">No products found.</p>
-              )}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500 col-span-full">No products found.</p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+        {session && <UserInfo session={session} />}
+        
+        {/* Pop-up */}
+        {selectedProduct && (
+          <ProductPopup
+            product={selectedProduct}
+            onClose={handleClosePopup}
+            onPurchase={handlePurchase}
+            isPurchasing={isPurchasing === selectedProduct.productID}
+          />
         )}
       </div>
-      {session && <UserInfo session={session} />}
-      
-      {/* Pop-up */}
-      {selectedProduct && (
-        <ProductPopup
-          product={selectedProduct}
-          onClose={handleClosePopup}
-          onPurchase={handlePurchase}
-          isPurchasing={isPurchasing === selectedProduct.productID}
-        />
-      )}
     </div>
   );
 }

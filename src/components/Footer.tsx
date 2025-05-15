@@ -6,7 +6,7 @@ const Footer = () => {
     <div className="flex max-md:flex-col flex-wrap justify-between gap-10 sm:px-16 px-6 py-12 pl-24">
       <div className="flex flex-col justify-start items-start gap-6">
         <p className="text-base text-gray-700 pl-10">
-          Computer Depot 2025 <br />
+          Computer Depot {new Date().getFullYear()} <br />
           All rights reserved &copy;
         </p>
       </div>

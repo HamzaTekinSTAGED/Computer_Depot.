@@ -28,43 +28,45 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="flex h-screen relative">
-      {/* Sidebar */}
-      <Sidebar onExpand={setIsSidebarExpanded} />
+    <div className="min-h-screen flex flex-col">
+      <div className="flex flex-1 relative">
+        {/* Sidebar */}
+        <Sidebar onExpand={setIsSidebarExpanded} />
 
-      {/* Main Content */}
-      <main className={`flex-1 flex flex-col items-center justify-center text-center transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
-        <h1 className="text-4xl font-bold mb-8">
-          Admin Dashboard
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 p-8">
-          <button 
-            onClick={() => router.push('/admin/categories')}
-            className="w-full text-left bg-white p-10 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
-          >
-            <h2 className="text-3xl font-semibold mb-4">Categories</h2>
-            <p className="text-gray-600 text-lg">Manage categories</p>
-          </button>
+        {/* Main Content */}
+        <main className={`flex-1 flex flex-col items-center justify-center text-center transition-all duration-300 ease-in-out ${isSidebarExpanded ? 'ml-64' : 'ml-20'}`}>
+          <h1 className="text-4xl font-bold mb-8">
+            Admin Dashboard
+          </h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 p-8">
+            <button 
+              onClick={() => router.push('/admin/categories')}
+              className="w-full text-left bg-white p-10 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
+            >
+              <h2 className="text-3xl font-semibold mb-4">Categories</h2>
+              <p className="text-gray-600 text-lg">Manage categories</p>
+            </button>
 
-          <button 
-            onClick={() => router.push('/admin/products')}
-            className="w-full text-left bg-white p-10 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
-          >
-            <h2 className="text-3xl font-semibold mb-4">Products</h2>
-            <p className="text-gray-600 text-lg">View all products</p>
-          </button>
-          <button 
-            onClick={() => router.push('/admin/users')}
-            className="w-full text-left bg-white p-10 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
-          >
-            <h2 className="text-3xl font-semibold mb-4">Users</h2>
-            <p className="text-gray-600 text-lg">View all users</p>
-          </button>
-        </div>
-      </main>
+            <button 
+              onClick={() => router.push('/admin/products')}
+              className="w-full text-left bg-white p-10 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
+            >
+              <h2 className="text-3xl font-semibold mb-4">Products</h2>
+              <p className="text-gray-600 text-lg">View all products</p>
+            </button>
+            <button 
+              onClick={() => router.push('/admin/users')}
+              className="w-full text-left bg-white p-10 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200"
+            >
+              <h2 className="text-3xl font-semibold mb-4">Users</h2>
+              <p className="text-gray-600 text-lg">View all users</p>
+            </button>
+          </div>
+        </main>
 
-      {/* User Info */}
-      {session && <UserInfo session={session} />}
+        {/* User Info */}
+        {session && <UserInfo session={session} />}
+      </div>
     </div>
   );
 };

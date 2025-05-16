@@ -1,8 +1,10 @@
 import { FC, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import Cart from "./Cart";
+import ProfilePhoto from "./profilePhoto";
+import { uploadToCloudinary } from "../utils/cloudinaryUpload";
 
 interface UserInfoProps {
   session: Session;
@@ -10,8 +12,16 @@ interface UserInfoProps {
 
 const UserInfo: FC<UserInfoProps> = ({ session }) => {
   const router = useRouter();
+  const { update: updateSession } = useSession();
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const user = session.user;
+  const [profileImage, setProfileImage] = useState<string | null | undefined>(user.image);
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    setProfileImage(session.user.image);
+  }, [session.user.image]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -37,10 +47,55 @@ const UserInfo: FC<UserInfoProps> = ({ session }) => {
     router.push("/Authentication/password-change");
   };
 
-  const user = session.user;
+  const handleProfilePhotoChange = async (file: File) => {
+    setIsUploading(true);
+    try {
+      console.log('Starting profile photo upload process...');
+      // Upload to Cloudinary
+      const url = await uploadToCloudinary(file);
+      console.log('Cloudinary upload successful, URL:', url);
+      
+      // Update user's image in database
+      console.log('Attempting to update database with new image URL...');
+      const response = await fetch('/api/users/update-image', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imageUrl: url }),
+      });
+
+      console.log('Database update response status:', response.status);
+      const responseData = await response.json();
+      console.log('Database update response:', responseData);
+
+      if (!response.ok) {
+        throw new Error(`Failed to update profile image in database: ${responseData.message}`);
+      }
+
+      // Update the session with new image URL
+      await updateSession({
+        ...session,
+        user: {
+          ...session.user,
+          image: url
+        }
+      });
+
+      setProfileImage(url);
+      console.log('Profile photo update completed successfully');
+    } catch (err) {
+      console.error('Detailed error in profile photo update:', err);
+      alert("Fotoğraf yüklenirken hata oluştu: " + (err instanceof Error ? err.message : 'Unknown error'));
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="fixed top-4 right-4 flex items-center space-x-4">
+      {/* Profil Fotoğrafı */}
+      <ProfilePhoto image={profileImage} onImageChange={handleProfilePhotoChange} />
       {/* Cart bileşeni */}
       <div className="mr-4">
         <Cart />

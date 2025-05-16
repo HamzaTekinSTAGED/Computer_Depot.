@@ -11,6 +11,9 @@
   font-family: "Manrope", sans-serif;
 }
 
+
+
+
 /* START: General styles */
 .max-width {
   @apply max-w-[1440px] mx-auto;
@@ -36,6 +39,21 @@
   @apply flex flex-row relative justify-center items-center py-3 px-6 outline-none;
 }
 /* END: General styles */
+
+
+/*START: Number Input */
+input.no-spinner::-webkit-outer-spin-button,
+input.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.no-spinner {
+  -moz-appearance: textfield;
+}
+/*END: Number Input */
+
+
 
 /* START: Hero styles */
 .hero {

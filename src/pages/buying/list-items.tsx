@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import LoadingSpinner from "../../components/loading";
 import { calculateAverageRating } from "../../utils/ratingUtils";
 import { Category, Product } from "@/types";
+import FilterProduct from "../../components/filterProduct";
 
 
 
@@ -19,12 +20,17 @@ export default function ProductList() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]); 
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | "">("");
   const [isPurchasing, setIsPurchasing] = useState<number | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [filterValues, setFilterValues] = useState({
+    selectedCategoryIds: [] as number[],
+    dateRange: "",
+    minPrice: "",
+    maxPrice: "",
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -88,12 +94,33 @@ export default function ProductList() {
     }
   }, [session?.user?.id]);
 
+  const handleFilterChange = useCallback((filters: typeof filterValues) => {
+    setFilterValues(filters);
+  }, []);
+
   useEffect(() => {
-    const filtered = products.filter((product) => {
-      return selectedCategoryId === "" || product.categoryID === selectedCategoryId;
+    const now = new Date();
+    let filtered = products.filter((product) => {
+      // Çoklu kategori filtresi
+      const categoryMatch = filterValues.selectedCategoryIds.length === 0 || filterValues.selectedCategoryIds.includes(product.categoryID);
+      // Tarih filtresi
+      let dateMatch = true;
+      if (filterValues.dateRange) {
+        const productDate = new Date(product.publishingDate);
+        let diff = (now.getTime() - productDate.getTime()) / (1000 * 60 * 60 * 24); // gün cinsinden fark
+        if (filterValues.dateRange === "1week") dateMatch = diff <= 7;
+        else if (filterValues.dateRange === "1month") dateMatch = diff <= 30;
+        else if (filterValues.dateRange === "3month") dateMatch = diff <= 90;
+        else if (filterValues.dateRange === "6month") dateMatch = diff <= 180;
+      }
+      // Fiyat filtresi
+      let priceMatch = true;
+      if (filterValues.minPrice !== "" && !isNaN(Number(filterValues.minPrice))) priceMatch = product.price >= Number(filterValues.minPrice);
+      if (filterValues.maxPrice !== "" && !isNaN(Number(filterValues.maxPrice))) priceMatch = priceMatch && product.price <= Number(filterValues.maxPrice);
+      return categoryMatch && dateMatch && priceMatch;
     });
     setFilteredProducts(filtered);
-  }, [selectedCategoryId, products]);
+  }, [filterValues, products]);
 
   const handleProductClick = (product: Product) => {
     router.push(`/buying/product/${product.productID}`);
@@ -161,18 +188,11 @@ export default function ProductList() {
               <h1 className="text-4xl font-semibold text-center mb-6">Products List</h1>
               
               {/* Filtreleme Alanı */}
-              <div className="mb-6 flex gap-4">
-                <select
-                  className="p-2 border rounded"
-                  value={selectedCategoryId}
-                  onChange={(e) => setSelectedCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.categoryID} value={cat.categoryID}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
+              <FilterProduct 
+                categories={categories} 
+                onFilterChange={handleFilterChange} 
+                pageType="list-items"
+              />
               
               {/* Ürün Listesi */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -1,18 +1,46 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import LoadingSpinner from "../../components/loading";
 import Link from "next/link";
-import { TradeHistory } from "@/types";
+import { TradeHistory, Category } from "@/types";
+import FilterProduct from "../../components/filterProduct";
+
 const MyOrdersPage = () => {
   const { data: session } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [tradeHistory, setTradeHistory] = useState<TradeHistory[]>([]);
+  const [filteredTradeHistory, setFilteredTradeHistory] = useState<TradeHistory[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterValues, setFilterValues] = useState({
+    selectedCategoryIds: [] as number[],
+    dateRange: "",
+    minPrice: "",
+    maxPrice: "",
+  });
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) {
+          throw new Error("Kategoriler getirilemedi.");
+        }
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Kategori hatası:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const TradeItem = ({ trade }: { trade: TradeHistory }) => (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 flex flex-col h-full">
@@ -69,6 +97,10 @@ const MyOrdersPage = () => {
 
   const MemoizedTradeItem = useMemo(() => TradeItem, []);
 
+  const handleFilterChange = useCallback((filters: typeof filterValues) => {
+    setFilterValues(filters);
+  },[]);
+
   useEffect(() => {
     const fetchTradeHistory = async () => {
       if (!session?.user?.id) return;
@@ -91,6 +123,36 @@ const MyOrdersPage = () => {
     fetchTradeHistory();
   }, [session?.user?.id]);
 
+  useEffect(() => {
+    const now = new Date();
+    let filtered = tradeHistory.filter((trade) => {
+      // Category filter
+      const categoryMatch = filterValues.selectedCategoryIds.length === 0 || 
+        filterValues.selectedCategoryIds.includes(trade.product.categoryID);
+      
+      // Date filter
+      let dateMatch = true;
+      if (filterValues.dateRange) {
+        const tradeDate = new Date(trade.sellingDate);
+        let diff = (now.getTime() - tradeDate.getTime()) / (1000 * 60 * 60 * 24); // difference in days
+        if (filterValues.dateRange === "1week") dateMatch = diff <= 7;
+        else if (filterValues.dateRange === "1month") dateMatch = diff <= 30;
+        else if (filterValues.dateRange === "3month") dateMatch = diff <= 90;
+        else if (filterValues.dateRange === "6month") dateMatch = diff <= 180;
+      }
+
+      // Price filter
+      let priceMatch = true;
+      if (filterValues.minPrice !== "" && !isNaN(Number(filterValues.minPrice))) 
+        priceMatch = trade.price >= Number(filterValues.minPrice);
+      if (filterValues.maxPrice !== "" && !isNaN(Number(filterValues.maxPrice))) 
+        priceMatch = priceMatch && trade.price <= Number(filterValues.maxPrice);
+
+      return categoryMatch && dateMatch && priceMatch;
+    });
+    setFilteredTradeHistory(filtered);
+  }, [filterValues, tradeHistory]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex flex-1 relative">
@@ -106,10 +168,17 @@ const MyOrdersPage = () => {
                 My Orders
               </h1>
 
+              {/* Update FilterProduct to use categories */}
+              <FilterProduct 
+                categories={categories}
+                onFilterChange={handleFilterChange}
+                pageType="my-orders"
+              />
+
               {/* Trade History List */}
-              {tradeHistory.length > 0 ? (
+              {filteredTradeHistory.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {tradeHistory.map((trade) => (
+                  {filteredTradeHistory.map((trade) => (
                     <MemoizedTradeItem key={trade.id} trade={trade} />
                   ))}
                 </div>

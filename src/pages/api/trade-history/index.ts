@@ -31,6 +31,12 @@ export default async function handler(
               description: true,
               imageURL: true,
               amount: true,
+              categoryID: true,
+              category: {
+                select: {
+                  name: true
+                }
+              }
             },
           },
           buyer: {

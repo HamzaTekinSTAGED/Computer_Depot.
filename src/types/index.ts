@@ -78,6 +78,10 @@ export interface TradeHistory {
     description: string;
     imageURL: string;
     amount: number;
+    categoryID: number;
+    category: {
+      name: string;
+    };
   };
   buyer: {
     username: string;

@@ -2,19 +2,28 @@
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Sidebar from "../../components/sidebar";
 import UserInfo from "../../components/UserInfo";
 import Image from "next/image";
 import LoadingSpinner from "../../components/loading";
-import { Product } from "@/types";
+import { Product, Category } from "@/types";
+import FilterProduct from "../../components/filterProduct";
 
 export default function SellOrdersPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterValues, setFilterValues] = useState({
+    selectedCategoryIds: [] as number[],
+    dateRange: "",
+    minPrice: "",
+    maxPrice: "",
+  });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -42,10 +51,61 @@ export default function SellOrdersPage() {
     fetchProducts();
   }, [session]);
 
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) {
+          throw new Error("Kategoriler getirilemedi.");
+        }
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Kategori hatası:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleFilterChange = useCallback((filters: typeof filterValues) => {
+    setFilterValues(filters);
+  }, []);
+
+  useEffect(() => {
+    const now = new Date();
+    let filtered = products.filter((product) => {
+      // Category filter
+      const categoryMatch = filterValues.selectedCategoryIds.length === 0 || 
+        filterValues.selectedCategoryIds.includes(product.categoryID);
+      
+      // Date filter - using publishingDate for sell orders
+      let dateMatch = true;
+      if (filterValues.dateRange) {
+        const productDate = new Date(product.publishingDate);
+        let diff = (now.getTime() - productDate.getTime()) / (1000 * 60 * 60 * 24); // difference in days
+        if (filterValues.dateRange === "1week") dateMatch = diff <= 7;
+        else if (filterValues.dateRange === "1month") dateMatch = diff <= 30;
+        else if (filterValues.dateRange === "3month") dateMatch = diff <= 90;
+        else if (filterValues.dateRange === "6month") dateMatch = diff <= 180;
+      }
+
+      // Price filter
+      let priceMatch = true;
+      if (filterValues.minPrice !== "" && !isNaN(Number(filterValues.minPrice))) 
+        priceMatch = product.price >= Number(filterValues.minPrice);
+      if (filterValues.maxPrice !== "" && !isNaN(Number(filterValues.maxPrice))) 
+        priceMatch = priceMatch && product.price <= Number(filterValues.maxPrice);
+
+      return categoryMatch && dateMatch && priceMatch;
+    });
+    setFilteredProducts(filtered);
+  }, [filterValues, products]);
+
   const handleProductClick = (product: Product) => {
     router.push(`/selling/sold/${product.productID}`);
   };
-
 
   return (
     <div className="flex h-screen relative">
@@ -58,13 +118,20 @@ export default function SellOrdersPage() {
         ) : (
           <div className="max-w-6xl mx-auto mt-10 p-8">
             <h2 className="text-2xl font-semibold mb-6">My Sell Orders</h2>
-            {products.length === 0 ? (
+
+            <FilterProduct 
+              categories={categories}
+              onFilterChange={handleFilterChange}
+              pageType="sell-orders"
+            />
+
+            {filteredProducts.length === 0 ? (
               <div className="text-center py-10 bg-white rounded-xl shadow-md">
                 <p className="text-xl text-gray-600">Henüz hiç ürün eklenmemiş</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <div 
                     key={product.productID} 
                     className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"

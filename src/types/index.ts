@@ -110,15 +110,6 @@ export interface Category {
   description: string | null;
 }
 
-export interface SlidingBarProps {
-  activeTab: "buy" | "sell" | null;
-  position: number;
-  showBar: boolean;
-  sidebarWidth: number;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-}
-
 export interface ProductPopupProps {
   product: Product;
   onClose: () => void;

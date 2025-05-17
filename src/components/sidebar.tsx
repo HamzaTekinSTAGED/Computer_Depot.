@@ -1,10 +1,9 @@
 "use client";
 
 import { FC, useState, useRef, useEffect } from "react";
-import { FaShoppingCart, FaDollarSign } from "react-icons/fa";
+import { FaShoppingCart, FaDollarSign, FaHome, FaUser, FaCog, FaQuestionCircle, FaShoppingBag, FaList, FaClipboardList, FaPlus } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
-import SlidingBar from "./SlidingBar";
 
 interface SidebarProps {
   onExpand?: (expanded: boolean) => void;
@@ -12,26 +11,14 @@ interface SidebarProps {
 
 const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
   const [activeTab, setActiveTab] = useState<"buy" | "sell" | null>(null);
-  const [showBar, setShowBar] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [mobileMenuOpen] = useState(false);
-  const [barPosition, setBarPosition] = useState<number>(0);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const buyButtonRef = useRef<HTMLButtonElement | null>(null);
-  const sellButtonRef = useRef<HTMLButtonElement | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
-  const slidingBarRef = useRef<HTMLDivElement | null>(null);
 
   const handleTabClick = (tab: "buy" | "sell") => {
-    setActiveTab(tab);
-    setShowBar(true);
-
-    if (tab === "buy" && buyButtonRef.current) {
-      setBarPosition(buyButtonRef.current.offsetTop);
-    } else if (tab === "sell" && sellButtonRef.current) {
-      setBarPosition(sellButtonRef.current.offsetTop);
-    }
+    setActiveTab(activeTab === tab ? null : tab);
   };
 
   const handleMouseEnter = () => {
@@ -44,36 +31,14 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
 
   const handleMouseLeave = () => {
     closeTimeoutRef.current = setTimeout(() => {
-      if (!showBar || (slidingBarRef.current && !slidingBarRef.current.matches(':hover'))) {
-        setIsExpanded(false);
-        setShowBar(false);
-        setActiveTab(null);
-        onExpand?.(false);
-      }
+      setIsExpanded(false);
+      onExpand?.(false);
     }, 200);
   };
 
-  const handleSlidingBarMouseEnter = () => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-    }
-  };
-
-  const handleSlidingBarMouseLeave = () => {
-    setIsExpanded(false);
-    setShowBar(false);
-    setActiveTab(null);
-    onExpand?.(false);
-  };
-
   const handleClickOutside = (e: MouseEvent) => {
-    if (
-      sidebarRef.current && 
-      !sidebarRef.current.contains(e.target as Node) &&
-      slidingBarRef.current && 
-      !slidingBarRef.current.contains(e.target as Node)
-    ) {
-      setShowBar(false);
+    if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
+      setActiveTab(null);
     }
   };
 
@@ -110,46 +75,114 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
           </Link>
         </div>
 
-        {/* Sidebar Buttons */}
+        {/* Sidebar Navigation */}
         <nav className="flex flex-col items-start mt-10 space-y-4 px-4">
-          <button
-            ref={buyButtonRef}
-            onClick={() => handleTabClick("buy")}
-            className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group
-              ${activeTab === "buy" 
-                ? "bg-blue-50 text-blue-600" 
-                : "hover:bg-gray-100 text-gray-600 hover:text-blue-600"}`}
-          >
-            <FaShoppingCart className="text-xl flex-shrink-0" />
-            <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-              Buy
-            </span>
-          </button>
+          {/* Main Navigation */}
+          <Link href="/" className="w-full">
+            <button className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group hover:bg-gray-100 text-gray-600 hover:text-blue-600">
+              <FaHome className="text-xl flex-shrink-0" />
+              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                Home
+              </span>
+            </button>
+          </Link>
 
-          <button
-            ref={sellButtonRef}
-            onClick={() => handleTabClick("sell")}
-            className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group
-              ${activeTab === "sell" 
-                ? "bg-green-50 text-green-600" 
-                : "hover:bg-gray-100 text-gray-600 hover:text-green-600"}`}
-          >
-            <FaDollarSign className="text-xl flex-shrink-0" />
-            <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-              Sell
-            </span>
-          </button>
+          {/* Buy Section */}
+          <div className="w-full">
+            <button
+              onClick={() => handleTabClick("buy")}
+              className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group
+                ${activeTab === "buy" 
+                  ? "bg-blue-50 text-blue-600" 
+                  : "hover:bg-gray-100 text-gray-600 hover:text-blue-600"}`}
+            >
+              <FaShoppingCart className="text-xl flex-shrink-0" />
+              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                Buy
+              </span>
+            </button>
+
+            {activeTab === "buy" && isExpanded && (
+              <div className="ml-8 mt-2 space-y-2">
+                <Link href="/buying/my-orders" className="w-full">
+                  <button className="flex items-center w-full px-4 py-2 rounded-lg transition-all duration-300 group hover:bg-blue-50 text-gray-600 hover:text-blue-600">
+                    <FaShoppingBag className="text-lg flex-shrink-0" />
+                    <span className="ml-3 text-sm font-medium">My Orders</span>
+                  </button>
+                </Link>
+                <Link href="/buying/list-items" className="w-full">
+                  <button className="flex items-center w-full px-4 py-2 rounded-lg transition-all duration-300 group hover:bg-blue-50 text-gray-600 hover:text-blue-600">
+                    <FaList className="text-lg flex-shrink-0" />
+                    <span className="ml-3 text-sm font-medium">List Items</span>
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Sell Section */}
+          <div className="w-full">
+            <button
+              onClick={() => handleTabClick("sell")}
+              className={`flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group
+                ${activeTab === "sell" 
+                  ? "bg-green-50 text-green-600" 
+                  : "hover:bg-gray-100 text-gray-600 hover:text-green-600"}`}
+            >
+              <FaDollarSign className="text-xl flex-shrink-0" />
+              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                Sell
+              </span>
+            </button>
+
+            {activeTab === "sell" && isExpanded && (
+              <div className="ml-8 mt-2 space-y-2">
+                <Link href="/selling/sell-orders" className="w-full">
+                  <button className="flex items-center w-full px-4 py-2 rounded-lg transition-all duration-300 group hover:bg-green-50 text-gray-600 hover:text-green-600">
+                    <FaClipboardList className="text-lg flex-shrink-0" />
+                    <span className="ml-3 text-sm font-medium">My Sell Orders</span>
+                  </button>
+                </Link>
+                <Link href="/selling/add-items" className="w-full">
+                  <button className="flex items-center w-full px-4 py-2 rounded-lg transition-all duration-300 group hover:bg-green-50 text-gray-600 hover:text-green-600">
+                    <FaPlus className="text-lg flex-shrink-0" />
+                    <span className="ml-3 text-sm font-medium">Add Items</span>
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Profile Section */}
+          <Link href="/profile" className="w-full">
+            <button className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group hover:bg-gray-100 text-gray-600 hover:text-purple-600">
+              <FaUser className="text-xl flex-shrink-0" />
+              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                Profile
+              </span>
+            </button>
+          </Link>
+
+          {/* Settings Section */}
+          <Link href="/settings" className="w-full">
+            <button className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group hover:bg-gray-100 text-gray-600 hover:text-yellow-600">
+              <FaCog className="text-xl flex-shrink-0" />
+              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                Settings
+              </span>
+            </button>
+          </Link>
+
+          {/* Help Section */}
+          <Link href="/help" className="w-full">
+            <button className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group hover:bg-gray-100 text-gray-600 hover:text-red-600">
+              <FaQuestionCircle className="text-xl flex-shrink-0" />
+              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
+                Help
+              </span>
+            </button>
+          </Link>
         </nav>
-
-        <SlidingBar
-          ref={slidingBarRef}
-          activeTab={activeTab}
-          position={barPosition}
-          showBar={showBar}
-          sidebarWidth={isExpanded ? 288 : 80}
-          onMouseEnter={handleSlidingBarMouseEnter}
-          onMouseLeave={handleSlidingBarMouseLeave}
-        />
       </aside>
     </div>
   );

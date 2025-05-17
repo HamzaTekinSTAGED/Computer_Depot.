@@ -78,7 +78,7 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
         {/* Sidebar Navigation */}
         <nav className="flex flex-col items-start mt-10 space-y-4 px-4">
           {/* Main Navigation */}
-          <Link href="/" className="w-full">
+          <Link href="/hero" className="w-full">
             <button className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group hover:bg-gray-100 text-gray-600 hover:text-blue-600">
               <FaHome className="text-xl flex-shrink-0" />
               <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>

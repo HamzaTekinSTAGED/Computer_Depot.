@@ -7,7 +7,6 @@ import { useRoleBasedRedirect } from "../functions/functions";
 import LoadingSpinner from "../components/loading";
 import ProductPopup from "../components/ProductPopup";
 import Image from "next/image";
-import { calculateAverageRating } from "../utils/ratingUtils";
 import { Category, Product, Favorite } from "@/types";
 import FilterProduct from "../components/filterProduct";
 import { HeartIcon as HeartIconOutline } from '@heroicons/react/24/outline';
@@ -69,24 +68,8 @@ const HeroPage = () => {
           product.userID !== Number(session?.user?.id)
         );
 
-        const productsWithComments = await Promise.all(
-          filteredProducts.map(async (product: Product) => {
-            try {
-              const commentsRes = await fetch(`/api/comment/${product.productID}`);
-              if (commentsRes.ok) {
-                const comments = await commentsRes.json();
-                return { ...product, comments };
-              }
-              return product;
-            } catch (error) {
-              console.error(`Error fetching comments for product ${product.productID}:`, error);
-              return product;
-            }
-          })
-        );
-
-        setProducts(productsWithComments);
-        setFilteredProducts(productsWithComments);
+        setProducts(filteredProducts);
+        setFilteredProducts(filteredProducts);
 
         if (session?.user?.id) {
           const favoritesRes = await fetch("/api/favorite");
@@ -233,12 +216,13 @@ const HeroPage = () => {
               <h1 className="text-4xl font-semibold text-center mb-6">Products Lists</h1>
               <h1 className="text-sm font-semibold text-center mb-6">Find the best tech equipment - quickly and easily!</h1>
               
-              {/* Filtreleme Alanı */}
-              <FilterProduct 
-                categories={categories} 
-                onFilterChange={handleFilterChange} 
-                pageType="list-items"
-              />
+              {status === "authenticated" && !isLoading && (
+                <FilterProduct 
+                  categories={categories} 
+                  onFilterChange={handleFilterChange} 
+                  pageType="list-items"
+                />
+              )}
               
               {/* Ürün Listesi */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
@@ -248,7 +232,7 @@ const HeroPage = () => {
                     return (
                       <div 
                         key={product.productID}
-                        className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                        className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300 w-full min-w-[250px]"
                       >
                         {product.imageURL && (
                           <div className="relative w-full h-48">
@@ -264,7 +248,7 @@ const HeroPage = () => {
                         <div className="p-6">
                           <div className="flex justify-between items-start">
                             <h2 
-                              className="text-xl font-semibold text-gray-900 cursor-pointer hover:underline"
+                              className="text-xl font-semibold text-gray-900 cursor-pointer hover:underline min-w-0"
                               onClick={() => handleProductClick(product)}
                             >
                               {product.title}
@@ -287,8 +271,10 @@ const HeroPage = () => {
                           <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
                           <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
                           {product.amount === 0 && (
-                            <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-semibold">
-                              Sold Out
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="bg-[#1E2A3B] text-white text-xl font-bold rotate-45 transform origin-center py-3 px-24 opacity-80">
+                                SOLD OUT
+                              </div>
                             </div>
                           )}
                         </div>

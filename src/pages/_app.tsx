@@ -20,8 +20,13 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       {/* The className="relative" was on the body tag, might need to apply elsewhere if needed */}
       <AuthProvider>
-        <Component {...pageProps} />
-        <Footer />
+        {/* Container for sticky footer */}
+        <div>
+          <main>
+            <Component {...pageProps} />
+          </main>
+          <Footer />
+        </div>
       </AuthProvider>
     </>
   );

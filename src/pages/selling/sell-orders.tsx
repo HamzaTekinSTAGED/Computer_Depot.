@@ -108,9 +108,9 @@ export default function SellOrdersPage() {
   };
 
   return (
-    <div className="flex h-screen relative">
+    <div>
       <Sidebar onExpand={setIsSidebarExpanded} />
-      <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
+      <div className={`transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
         {(status === "loading" || loading) ? (
           <div className="flex justify-center items-center h-full">
             <LoadingSpinner />

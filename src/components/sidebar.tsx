@@ -1,7 +1,7 @@
 "use client";
 
 import { FC, useState, useRef, useEffect } from "react";
-import { FaShoppingCart, FaDollarSign, FaHome, FaUser, FaCog, FaQuestionCircle, FaShoppingBag, FaList, FaClipboardList, FaPlus } from "react-icons/fa";
+import { FaShoppingCart, FaDollarSign, FaHome, FaUser, FaCog, FaQuestionCircle, FaShoppingBag, FaClipboardList, FaPlus, FaRegGrinHearts, FaRegHeart } from "react-icons/fa";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -110,10 +110,10 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
                     <span className="ml-3 text-sm font-medium">My Orders</span>
                   </button>
                 </Link>
-                <Link href="/buying/list-items" className="w-full">
+                <Link href="/buying/favorites" className="w-full">
                   <button className="flex items-center w-full px-4 py-2 rounded-lg transition-all duration-300 group hover:bg-blue-50 text-gray-600 hover:text-blue-600">
-                    <FaList className="text-lg flex-shrink-0" />
-                    <span className="ml-3 text-sm font-medium">List Items</span>
+                    <FaRegHeart className="text-lg flex-shrink-0" />
+                    <span className="ml-3 text-sm font-medium">Favourites</span>
                   </button>
                 </Link>
               </div>

@@ -1,4 +1,5 @@
 import { MouseEventHandler } from "react";
+import 'next-auth';
 
 interface CommentUser {
   username: string;
@@ -139,4 +140,25 @@ export interface FormData {
 
 export interface Router {
   push: (path: string) => void;
+}
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string | number; // Assuming user id can be string or number based on your session handling
+      // Add other user properties you include in the session if needed
+    };
+  }
+
+  // If you have a custom User type from your database, you might want to augment it too
+  // interface User {
+  //   id: number;
+  //   // other properties
+  // }
+}
+
+export interface Favorite {
+  userId: number;
+  productId: number;
+  product: Product; // Include product details
 }

@@ -8,8 +8,10 @@ import LoadingSpinner from "../components/loading";
 import ProductPopup from "../components/ProductPopup";
 import Image from "next/image";
 import { calculateAverageRating } from "../utils/ratingUtils";
-import { Category, Product } from "@/types";
+import { Category, Product, Favorite } from "@/types";
 import FilterProduct from "../components/filterProduct";
+import { HeartIcon as HeartIconOutline } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartIconSolid } from '@heroicons/react/24/solid';
 
 const HeroPage = () => {
   const router = useRouter();
@@ -27,6 +29,7 @@ const HeroPage = () => {
     minPrice: "",
     maxPrice: "",
   });
+  const [favoriteProductIds, setFavoriteProductIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -54,15 +57,15 @@ const HeroPage = () => {
   }, []);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProductsAndFavorites = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/products");
-        if (!res.ok) {
+        const productsRes = await fetch("/api/products");
+        if (!productsRes.ok) {
           throw new Error("Failed to fetch products.");
         }
-        const data = await res.json();
-        const filteredProducts = data.filter((product: Product) => 
+        const productsData = await productsRes.json();
+        const filteredProducts = productsData.filter((product: Product) => 
           product.userID !== Number(session?.user?.id)
         );
 
@@ -84,6 +87,17 @@ const HeroPage = () => {
 
         setProducts(productsWithComments);
         setFilteredProducts(productsWithComments);
+
+        if (session?.user?.id) {
+          const favoritesRes = await fetch("/api/favorite");
+          if (favoritesRes.ok) {
+            const favoritesData: Favorite[] = await favoritesRes.json();
+            setFavoriteProductIds(favoritesData.map(fav => fav.productId));
+          } else {
+            console.error("Error fetching favorites:", favoritesRes.statusText);
+          }
+        }
+
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -92,7 +106,7 @@ const HeroPage = () => {
     };
 
     if (session?.user?.id) {
-      fetchProducts();
+      fetchProductsAndFavorites();
     }
   }, [session?.user?.id]);
 
@@ -172,6 +186,36 @@ const HeroPage = () => {
     }
   };
 
+  const handleToggleFavorite = async (productId: number) => {
+    if (!session?.user?.id) return;
+
+    const isFavorited = favoriteProductIds.includes(productId);
+    const method = isFavorited ? 'DELETE' : 'POST';
+
+    try {
+      const response = await fetch("/api/favorite", {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${isFavorited ? 'remove from' : 'add to'} favorites.`);
+      }
+
+      setFavoriteProductIds(prevIds => 
+        isFavorited 
+          ? prevIds.filter(id => id !== productId) 
+          : [...prevIds, productId]
+      );
+    } catch (error) {
+      console.error("Favorite toggle error:", error);
+      alert(error instanceof Error ? error.message : "Failed to update favorites.");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex flex-1 relative">
@@ -186,7 +230,8 @@ const HeroPage = () => {
             </div>
           ) : session ? (
             <div className="p-6 max-w-7xl mx-auto">
-              <h1 className="text-4xl font-semibold text-center mb-6">Find the best tech equipment - quickly and easily!</h1>
+              <h1 className="text-4xl font-semibold text-center mb-6">Products Lists</h1>
+              <h1 className="text-sm font-semibold text-center mb-6">Find the best tech equipment - quickly and easily!</h1>
               
               {/* Filtreleme Alanı */}
               <FilterProduct 
@@ -198,47 +243,58 @@ const HeroPage = () => {
               {/* Ürün Listesi */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
                 {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300"
-                      onClick={() => handleProductClick(product)}
-                    >
-                      {product.imageURL && (
-                        <div className="relative w-full h-48">
-                          <Image
-                            src={product.imageURL}
-                            alt={product.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      )}
-                      <div className="p-6">
-                        <div className="flex justify-between items-start">
-                          <h2 className="text-xl font-semibold text-gray-900">{product.title}</h2>
-                          <div className="flex items-center space-x-1 px-2 py-1 rounded-full">
-                            <span className="text-yellow-500 font-semibold text-lg">
-                              {calculateAverageRating(product.comments)}
-                            </span>
-                            <span className="text-yellow-500 text-2xl">★</span>
-                            <span className="text-gray-600 text-sm">
-                              ({product.comments?.length || 0})
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
-                        <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
-                        <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
-                        {product.amount === 0 && (
-                          <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-semibold">
-                            Sold Out
+                  filteredProducts.map((product) => {
+                    const isFavorited = favoriteProductIds.includes(product.productID);
+                    return (
+                      <div 
+                        key={product.productID}
+                        className="bg-white shadow-lg rounded-lg overflow-hidden border border-gray-200 relative cursor-pointer hover:shadow-xl transition-shadow duration-300"
+                      >
+                        {product.imageURL && (
+                          <div className="relative w-full h-48">
+                            <Image
+                              src={product.imageURL}
+                              alt={product.title}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
                           </div>
                         )}
+                        <div className="p-6">
+                          <div className="flex justify-between items-start">
+                            <h2 
+                              className="text-xl font-semibold text-gray-900 cursor-pointer hover:underline"
+                              onClick={() => handleProductClick(product)}
+                            >
+                              {product.title}
+                            </h2>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleFavorite(product.productID);
+                              }}
+                              className="text-red-500 hover:text-red-600 transition-colors duration-200"
+                            >
+                              {isFavorited ? (
+                                <HeartIconSolid className="h-6 w-6" />
+                              ) : (
+                                <HeartIconOutline className="h-6 w-6" />
+                              )}
+                            </button>
+                          </div>
+                          <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
+                          <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
+                          <p className="text-gray-600 text-sm">Amount: {product.amount}</p>
+                          {product.amount === 0 && (
+                            <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-semibold">
+                              Sold Out
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                  })
                 ) : (
                   <p className="text-center text-gray-500 col-span-full">No products found.</p>
                 )}
@@ -248,15 +304,15 @@ const HeroPage = () => {
         </main>
 
         {/* User Info */}
-        {session && <UserInfo session={session} />}
+        {session && <UserInfo session={session!} />}
 
         {/* Pop-up */}
         {selectedProduct && (
           <ProductPopup
-            product={selectedProduct}
+            product={selectedProduct!}
             onClose={handleClosePopup}
             onPurchase={handlePurchase}
-            isPurchasing={isPurchasing === selectedProduct.productID}
+            isPurchasing={isPurchasing === selectedProduct!.productID}
           />
         )}
       </div>

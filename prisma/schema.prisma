@@ -37,6 +37,7 @@ model User {
   comments        Comment[]
   replies         Reply[] // Added relation to replies made by the user
   commentLikes    Like[] @relation("UserLikes")
+  favorites       Favorite[] // Added relation to user's favorites
 }
 
 enum UserRole {
@@ -112,6 +113,7 @@ model Product {
   cart         Cart[]
   comments     Comment[]
   newCommentExist Boolean @default(false)
+  favorites      Favorite[] // Added relation to product's favorites
 
   @@index([userID]) // Foreign key için index
   @@index([categoryID]) // Kategori aramaları için index
@@ -203,4 +205,16 @@ model Like {
   @@id([userID, commentUserID, commentProductID]) // Composite primary key
   @@index([commentUserID, commentProductID])
   @@index([userID])
+}
+
+model Favorite {
+  userId    Int
+  productId Int
+
+  user    User    @relation(fields: [userId], references: [userID], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [productID], onDelete: Cascade)
+
+  @@id([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }

@@ -163,15 +163,7 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
             </button>
           </Link>
 
-          {/* Settings Section */}
-          <Link href="/settings" className="w-full">
-            <button className="flex items-center w-full px-4 py-3 rounded-xl transition-all duration-300 group hover:bg-gray-100 text-gray-600 hover:text-yellow-600">
-              <FaCog className="text-xl flex-shrink-0" />
-              <span className={`ml-4 text-sm font-medium overflow-hidden whitespace-nowrap transition-all duration-300 ${isExpanded ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-                Settings
-              </span>
-            </button>
-          </Link>
+          
 
           {/* Help Section */}
           <Link href="/help" className="w-full">

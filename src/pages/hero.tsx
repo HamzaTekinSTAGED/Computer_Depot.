@@ -27,6 +27,7 @@ const HeroPage = () => {
     dateRange: "",
     minPrice: "",
     maxPrice: "",
+    searchTerm: "",
   });
   const [favoriteProductIds, setFavoriteProductIds] = useState<number[]>([]);
 
@@ -113,7 +114,11 @@ const HeroPage = () => {
       let priceMatch = true;
       if (filterValues.minPrice !== "" && !isNaN(Number(filterValues.minPrice))) priceMatch = product.price >= Number(filterValues.minPrice);
       if (filterValues.maxPrice !== "" && !isNaN(Number(filterValues.maxPrice))) priceMatch = priceMatch && product.price <= Number(filterValues.maxPrice);
-      return categoryMatch && dateMatch && priceMatch;
+
+      const searchTermMatch = filterValues.searchTerm === "" ||
+        product.title.toLowerCase().includes(filterValues.searchTerm.toLowerCase());
+
+      return categoryMatch && dateMatch && priceMatch && searchTermMatch;
     });
     setFilteredProducts(filtered);
   }, [filterValues, products]);

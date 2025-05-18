@@ -75,41 +75,41 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="flex h-screen relative">
+    <div className="flex h-screen relative bg-white">
       <Sidebar onExpand={setIsSidebarExpanded} />
       <div className={`flex-1 transition-all duration-300 ease-in-out ${isSidebarExpanded ? "ml-64" : "ml-20"}`}>
-        <div className="max-w-6xl mx-auto mt-10 p-8 bg-white shadow-xl rounded-xl">
-          <h2 className="text-2xl font-semibold mb-4">Manage Categories</h2>
+        <div className="max-w-6xl mx-auto mt-10 p-8 bg-background-gray shadow-xl rounded-xl">
+          <h2 className="text-2xl font-semibold mb-4 text-primary-dark">Manage Categories</h2>
           
           {/* Add Category Form */}
-          <form onSubmit={handleSubmit} className="mb-8 p-6 border rounded-lg">
-            <h3 className="text-xl font-semibold mb-4">Add New Category</h3>
+          <form onSubmit={handleSubmit} className="mb-8 p-6 border border-primary-dark rounded-lg bg-white">
+            <h3 className="text-xl font-semibold mb-4 text-primary-dark">Add New Category</h3>
             {error && <div className="text-red-500 mb-4">{error}</div>}
             <div className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Category Name</label>
+                <label htmlFor="name" className="block text-sm font-medium text-primary-dark">Category Name</label>
                 <input
                   type="text"
                   id="name"
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-dark focus:ring-primary-dark"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+                <label htmlFor="description" className="block text-sm font-medium text-primary-dark">Description</label>
                 <textarea
                   id="description"
                   value={newCategory.description}
                   onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-dark focus:ring-primary-dark"
                   rows={3}
                 />
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-primary-dark hover:bg-secondary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark"
               >
                 Add Category
               </button>
@@ -118,13 +118,13 @@ export default function CategoriesPage() {
 
           {/* Categories List */}
           <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-4">Existing Categories</h3>
+            <h3 className="text-xl font-semibold mb-4 text-primary-dark">Existing Categories</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {categories.map((category) => (
-                <div key={category.categoryID} className="p-4 border rounded-lg">
-                  <h4 className="font-semibold">{category.name}</h4>
+                <div key={category.categoryID} className="p-4 border border-primary-dark rounded-lg bg-white">
+                  <h4 className="font-semibold text-primary-dark">{category.name}</h4>
                   {category.description && (
-                    <p className="text-gray-600 mt-2">{category.description}</p>
+                    <p className="text-primary-dark mt-2">{category.description}</p>
                   )}
                 </div>
               ))}

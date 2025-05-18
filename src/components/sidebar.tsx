@@ -12,9 +12,8 @@ interface SidebarProps {
 const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
   const [activeTab, setActiveTab] = useState<"buy" | "sell" | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [mobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   const sidebarRef = useRef<HTMLDivElement | null>(null);
 
   const handleTabClick = (tab: "buy" | "sell") => {
@@ -25,20 +24,52 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
     if (closeTimeoutRef.current) {
       clearTimeout(closeTimeoutRef.current);
     }
-    setIsExpanded(true);
-    onExpand?.(true);
+    if (window.innerWidth >= 768) { // Only auto-expand on desktop
+      setIsExpanded(true);
+      onExpand?.(true);
+    }
   };
 
   const handleMouseLeave = () => {
-    closeTimeoutRef.current = setTimeout(() => {
+    if (window.innerWidth >= 768) { // Only auto-collapse on desktop
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsExpanded(false);
+        onExpand?.(false);
+      }, 200);
+    }
+  };
+
+  const toggleMobileMenu = () => {
+    if (isMobileMenuOpen) {
+      // Kapatma senaryosu
       setIsExpanded(false);
       onExpand?.(false);
-    }, 200);
+
+      setTimeout(() => {
+        setIsMobileMenuOpen(false);
+      }, 100);
+    } else {
+      // Açma senaryosu - kapatma ile aynı mantık
+      setIsExpanded(true);
+      onExpand?.(true);
+
+      setTimeout(() => {
+        setIsMobileMenuOpen(true);
+      }, 100);
+    }
   };
 
   const handleClickOutside = (e: MouseEvent) => {
     if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
       setActiveTab(null);
+      if (window.innerWidth < 768) {
+        setIsExpanded(false);
+        onExpand?.(false);
+
+        setTimeout(() => {
+          setIsMobileMenuOpen(false);
+        }, 100);
+      }
     }
   };
 
@@ -52,8 +83,66 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
     };
   }, []);
 
+  // Add resize listener to handle screen size changes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+        setIsExpanded(false);
+        onExpand?.(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={toggleMobileMenu}
+        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-lg md:hidden"
+      >
+        {isMobileMenuOpen ? (
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        ) : (
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        )}
+      </button>
+
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={toggleMobileMenu}
+        />
+      )}
+
       <aside
         ref={sidebarRef}
         className={`
@@ -62,7 +151,7 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
           shadow-lg border-r border-gray-200
           transition-all duration-300 ease-in-out z-40
           ${isExpanded ? "w-72" : "w-20"} 
-          ${mobileMenuOpen ? "translate-x-0" : "translate-x-[-100%] md:translate-x-0"}
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           rounded-r-3xl
         `}
         onMouseEnter={handleMouseEnter}
@@ -162,8 +251,6 @@ const Sidebar: FC<SidebarProps> = ({ onExpand }) => {
               </span>
             </button>
           </Link>
-
-          
 
           {/* Help Section */}
           <Link href="/help" className="w-full">

@@ -149,7 +149,7 @@ const FavoritesPage = () => {
                               )}
                             </button>
                           </div>
-                          <p className="text-gray-600 text-sm">{product.category?.name || 'Uncategorized'}</p>
+                          <p className="text-gray-600 text-sm">{product.category?.name || ''}</p>
                           <p className="text-gray-800 text-lg mt-2 font-medium">${product.price}</p>
                           {/* Amount is not directly in the Favorite object, might need to fetch product details if needed */}
                           {/* <p className="text-gray-600 text-sm">Amount: {product.amount}</p> */}

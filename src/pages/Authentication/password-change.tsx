@@ -21,7 +21,7 @@ export default function PasswordChangePage() {
   // Oturum kontrolü
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/hero");
     }
   }, [status, router]);
 

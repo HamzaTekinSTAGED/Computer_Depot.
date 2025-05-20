@@ -155,7 +155,7 @@ export default function SellOrdersPage() {
                           <span className="ml-2 w-3 h-3 bg-blue-500 rounded-full" title="New comment"></span>
                         )}
                       </h3>
-                      <p className="text-gray-600 mb-2">{product.description}</p>
+                      <p className="text-gray-600 mb-2">{product.description.length > 150 ? product.description.substring(0, 150) + "..." : product.description}</p>
                       <p className="text-lg font-bold mb-2">${product.price}</p>
                       <p className="text-sm text-gray-500 mb-2">Amount: {product.amount}</p>
                       <p className="text-sm text-gray-500 mb-4">Kategori: {product.category.name}</p>

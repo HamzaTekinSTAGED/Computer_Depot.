@@ -160,6 +160,7 @@ Bu proje [MIT License](LICENSE) altında lisanslanmıştır.
 
 - **HamzaTekinSTAGED** - [GitHub](https://github.com/HamzaTekinSTAGED)
 - **Mustafa Ceylan** - [GitHub](https://github.com/mcya001)
+- **Buğra Büyükbaş** - [GitHub](https://github.com/Fyuura)
 
 ## 🙏 Teşekkürler
 
